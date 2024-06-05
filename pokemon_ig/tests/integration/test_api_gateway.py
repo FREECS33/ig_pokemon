@@ -15,6 +15,8 @@ class TestApiGateway:
     def api_gateway_url(self):
         """ Get the API Gateway URL from Cloudformation Stack outputs """
         stack_name = os.environ.get("AWS_SAM_STACK_NAME")
+        # Agrega impresión para depuración
+        print("Stack Name:", stack_name)
 
         if stack_name is None:
             raise ValueError('Please set the AWS_SAM_STACK_NAME environment variable to the name of your stack')
@@ -43,3 +45,18 @@ class TestApiGateway:
 
         assert response.status_code == 200
         assert response.json() == {"message": "hello world"}
+
+    def test_update_pokemon_lambda(self, api_gateway_url):
+        """ Test the update pokemon lambda """
+        pokemon_id = 1
+        updated_data = {
+            "pokemon_name": "Charizard",
+            "types": "Fire/Flying",
+            "description": "es un charizaurio recs."
+        }
+
+        update_response = requests.post(f"{api_gateway_url}/update_pokemon",
+                                        json={"id_pokemon": pokemon_id, "updated_data": updated_data})
+
+        assert update_response.status_code == 200
+        assert update_response.json() == {"message": "Pokemon updated successfully"}
