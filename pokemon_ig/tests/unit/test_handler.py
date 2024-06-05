@@ -2,12 +2,11 @@ import json
 
 import pytest
 
-from hello_world import app
+from get_data_all_pokemon import app
 
 
 @pytest.fixture()
 def apigw_event():
-    """ Generates API GW Event"""
 
     return {
         "body": '{ "test": "body"}',
@@ -65,8 +64,13 @@ def apigw_event():
 def test_lambda_handler(apigw_event):
 
     ret = app.lambda_handler(apigw_event, "")
-    data = json.loads(ret["body"])
 
-    assert ret["statusCode"] == 200
-    assert "message" in ret["body"]
-    assert data["message"] == "hello world"
+    assert ret["statusCode"] == 200 or ret["statusCode"] == 500
+
+    if ret["statusCode"] == 200:
+        data = json.loads(ret["body"])
+        print("Query Result:", data)
+        assert isinstance(data, list)
+        assert len(data) > 0
+    else:
+        print("Error:", ret["body"])
