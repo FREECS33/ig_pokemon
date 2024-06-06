@@ -44,6 +44,3 @@ def lambda_handler(event, context):
         connection.close()
 
     return response
-
-
-#Testing gitActions
