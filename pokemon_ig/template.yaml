@@ -5,37 +5,89 @@ Description: >
 
   Sample SAM Template for pokemon_ig
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 3
 
 Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  GetPokemonFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello_world/
+      CodeUri: get_data_all_pokemon/
       Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        GetPokemon:
+          Type: Api
           Properties:
-            Path: /hello
+            Path: /get_pokemon
             Method: get
 
+  AddPokemonFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: post_publication/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        AddPokemon:
+          Type: Api
+          Properties:
+            Path: /add_pokemon
+            Method: post
+
+  UpdatePokemonFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: update_publication/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        UpdatePokemon:
+          Type: Api
+          Properties:
+            Path: /update_pokemon
+            Method: put
+
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  GetPokemonApi:
+    Description: "API Gateway endpoint URL for GetPokemon function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_pokemon/"
+
+  AddPokemonApi:
+    Description: "API Gateway endpoint URL for AddPokemon function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/add_pokemon/"
+
+  UpdatePokemonApi:
+    Description: "API Gateway endpoint URL for UpdatePokemon function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update_pokemon/"
+
+  GetPokemonFunction:
+    Description: "Get Pokemon Lambda Function ARN"
+    Value: !GetAtt GetPokemonFunction.Arn
+
+  AddPokemonFunction:
+    Description: "Add Pokemon Lambda Function ARN"
+    Value: !GetAtt AddPokemonFunction.Arn
+
+  UpdatePokemonFunction:
+    Description: "Update Pokemon Lambda Function ARN"
+    Value: !GetAtt UpdatePokemonFunction.Arn
+
+  GetPokemonFunctionIamRole:
+    Description: "Implicit IAM Role created for Get Pokemon function"
+    Value: !GetAtt GetPokemonFunctionRole.Arn
+
+  AddPokemonFunctionIamRole:
+    Description: "Implicit IAM Role created for Add Pokemon function"
+    Value: !GetAtt AddPokemonFunctionRole.Arn
+
+  UpdatePokemonFunctionIamRole:
+    Description: "Implicit IAM Role created for Update Pokemon function"
+    Value: !GetAtt UpdatePokemonFunctionRole.Arn
