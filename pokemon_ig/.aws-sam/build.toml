@@ -28,4 +28,13 @@ manifest_hash = "beae07005ad81f7112216e8277312140"
 packagetype = "Zip"
 functions = ["UpdatePokemonFunction"]
 
+[function_build_definitions.5ecb02b4-41de-420f-a00f-5b5299cada00]
+codeuri = "C:\\Users\\aleja\\Documentos\\ig_pokemon\\pokemon_ig\\get_publication"
+runtime = "python3.12"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = "beae07005ad81f7112216e8277312140"
+packagetype = "Zip"
+functions = ["GetOnePokemonFuncton"]
+
 [layer_build_definitions]
