@@ -6,7 +6,7 @@ name = "admin"
 password = "sionpo2024"
 db_name = "SIONPO"
 
-def lambda_hanlder(event, context):
+def lambda_handler(event, context):
     connection = pymysql.connect(
         host=host,
         user=name,
@@ -20,32 +20,32 @@ def lambda_hanlder(event, context):
 
         # Extraer los datos del cuerpo
         pokemon_name = body['pokemon_name']
-        abilities = body['abilities']
-        types = body['types']
+        abilities = json.dumps(body['abilities'])  # Convertir a JSON antes de almacenar
+        types = json.dumps(body['types'])  # Convertir a JSON antes de almacenar
         description = body['description']
-        evolutions_conditions = body['evolutions_conditions']
+        evolution_conditions = body['evolution_conditions']
         image = body['image']
         likes_count = body['likes_count']
         dislikes_count = body['dislikes_count']
         creation_update_date = body['creation_update_date']
         id_pokemon = body['id_pokemon']
-        fk_id_user = body['fk_id_user']
+        fk_id_user_creator = body['fk_id_user_creator']
 
         # Insertar el nuevo Pokémon
         with connection.cursor() as cursor:
             sql = """
                     INSERT INTO Pokemon (
-                        Name, Abilities, Types, Description, 
-                        EvolutionsConditions, Image, LikesCount, 
-                        DislikesCount, CreationUpdateDate, IdPokemon, FkIdUser
+                        pokemon_name, abilities, types, description, 
+                        evolution_conditions, image, likes_count, 
+                        dislikes_count, creation_update_date, id_pokemon, fk_id_user_creator
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
                 """
             cursor.execute(sql, (
                 pokemon_name, abilities, types, description,
-                evolutions_conditions, image, likes_count,
-                dislikes_count, creation_update_date, id_pokemon, fk_id_user
+                evolution_conditions, image, likes_count,
+                dislikes_count, creation_update_date, id_pokemon, fk_id_user_creator
             ))
             connection.commit()
 
@@ -61,6 +61,7 @@ def lambda_hanlder(event, context):
         }
 
     except pymysql.MySQLError as error:
+        # Si ocurre un error de MySQL, configurar la respuesta con código de estado 500
         response = {
             "statusCode": 500,
             "body": str(error)
