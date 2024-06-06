@@ -25,6 +25,21 @@ Resources:
             Path: /get_pokemon
             Method: get
 
+  GetOnePokemonFuncton:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_publication/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        GetOnePokemon:
+          Type: Api
+          Properties:
+            Path: /get_one_pokemon
+            Method: get
+
   AddPokemonFunction:
     Type: AWS::Serverless::Function
     Properties:
