@@ -4,6 +4,7 @@ import pytest
 from get_data_all_pokemon import app as get_data_app
 from update_publication import app as update_pokemon_app
 
+
 @pytest.fixture()
 def apigw_event():
     return {
@@ -57,6 +58,7 @@ def apigw_event():
         "stageVariables": {"baz": "qux"},
         "path": "/examplepath",
     }
+
 
 @pytest.fixture()
 def apigw_update_event():
@@ -119,6 +121,7 @@ def apigw_update_event():
         "path": "/update_pokemon",
     }
 
+
 def test_lambda_handler(apigw_event):
     ret = get_data_app.lambda_handler(apigw_event, "")
 
@@ -131,6 +134,7 @@ def test_lambda_handler(apigw_event):
         assert len(data) > 0
     else:
         print("Error:", ret["body"])
+
 
 def test_update_pokemon_lambda(apigw_update_event):
     ret = update_pokemon_app.lambda_handler(apigw_update_event, "")
