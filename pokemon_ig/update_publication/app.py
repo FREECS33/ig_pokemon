@@ -6,10 +6,11 @@ name = "admin"
 password = "sionpo2024"
 db_name = "SIONPO"
 
-
 def lambda_handler(event, context):
-    pokemon_id = event.get("id_pokemon")
-    updated_data = event.get("updated_data", {})
+    # Deserializar el cuerpo del evento
+    body = json.loads(event.get("body", "{}"))
+    pokemon_id = body.get("id_pokemon")
+    updated_data = body.get("updated_data", {})
 
     connection = pymysql.connect(
         host=host,
@@ -32,12 +33,12 @@ def lambda_handler(event, context):
 
         response = {
             "statusCode": 200,
-            "body": "Pokemon updated successfully"
+            "body": json.dumps({"message": "Pokemon updated successfully"})
         }
     except pymysql.MySQLError as error:
         response = {
             "statusCode": 500,
-            "body": str(error)
+            "body": json.dumps({"message": str(error)})
         }
     finally:
         connection.close()
