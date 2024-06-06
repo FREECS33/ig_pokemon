@@ -15,13 +15,13 @@ def lambda_handler(event, context):
         connect_timeout=5
     )
     try:
-        # Deserializar el cuerpo del evento
+
         body = json.loads(event['body'])
 
-        # Extraer los datos del cuerpo
+
         pokemon_name = body['pokemon_name']
-        abilities = json.dumps(body['abilities'])  # Convertir a JSON antes de almacenar
-        types = json.dumps(body['types'])  # Convertir a JSON antes de almacenar
+        abilities = json.dumps(body['abilities'])
+        types = json.dumps(body['types'])
         description = body['description']
         evolution_conditions = body['evolution_conditions']
         image = body['image']
@@ -31,7 +31,7 @@ def lambda_handler(event, context):
         id_pokemon = body['id_pokemon']
         fk_id_user_creator = body['fk_id_user_creator']
 
-        # Insertar el nuevo Pokémon
+
         with connection.cursor() as cursor:
             sql = """
                     INSERT INTO Pokemon (
@@ -49,19 +49,19 @@ def lambda_handler(event, context):
             ))
             connection.commit()
 
-        # Consultar todos los Pokémon
+
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM Pokemon")
             result = cursor.fetchall()
 
-        # Crear la respuesta
+
         response = {
             "statusCode": 200,
             "body": json.dumps(result, default=str)
         }
 
     except pymysql.MySQLError as error:
-        # Si ocurre un error de MySQL, configurar la respuesta con código de estado 500
+
         response = {
             "statusCode": 500,
             "body": str(error)
