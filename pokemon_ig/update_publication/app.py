@@ -6,8 +6,8 @@ name = "admin"
 password = "sionpo2024"
 db_name = "SIONPO"
 
+
 def lambda_handler(event, context):
-    # Deserializar el cuerpo del evento
     body = json.loads(event.get("body", "{}"))
     pokemon_id = body.get("id_pokemon")
     updated_data = body.get("updated_data", {})
@@ -44,3 +44,6 @@ def lambda_handler(event, context):
         connection.close()
 
     return response
+
+
+#Testing gitActions

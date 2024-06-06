@@ -3,8 +3,11 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - develop
+    types: [opened, synchronize, reopened, closed]
 jobs:
   sonarcloud:
     name: SonarCloud
@@ -12,9 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+      - name: Debug Info
+        run: |
+          echo "Running on branch ${{ github.ref }}"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Event path: ${{ github.event_path }}"
+          cat ${{ github.event_path }}
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
