@@ -6,24 +6,84 @@ on:
       - develop
   pull_request:
     branches:
+      - main
       - develop
     types: [opened, synchronize, reopened, closed]
+
 jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
       - name: Debug Info
         run: |
           echo "Running on branch ${{ github.ref }}"
           echo "Event name: ${{ github.event_name }}"
           echo "Event path: ${{ github.event_path }}"
           cat ${{ github.event_path }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r update_publication/requirements.txt
+          pip install -r get_publication/requirements.txt
+          pip install -r get_data_all_pokemon/requirements.txt
+          pip install -r post_publication/requirements.txt
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    needs: sonarcloud
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r update_publication/requirements.txt
+          pip install -r get_publication/requirements.txt
+          pip install -r get_data_all_pokemon/requirements.txt
+          pip install -r post_publication/requirements.txt
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      - name: Install SAM CLI
+        run: |
+          pip install aws-sam-cli
+
+      - name: Build SAM application
+        run: sam build
+
+      - name: Deploy SAM application
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name pokemonIg --capabilities CAPABILITY_IAM
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-2
