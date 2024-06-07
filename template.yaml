@@ -25,7 +25,7 @@ Resources:
             Path: /get_pokemon
             Method: get
 
-  GetOnePokemonFuncton:
+  GetOnePokemonFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: get_publication/
@@ -85,10 +85,29 @@ Resources:
             Path: /update_pokemon
             Method: put
 
+  DeletePokemonFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: delete_publication/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        DeletePokemon:
+          Type: Api
+          Properties:
+            Path: /delete_pokemon
+            Method: delete
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_pokemon/"
+
+  GetOnePokemonApi:
+    Description: "API Gateway endpoint URL for GetOnePokemon function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod//get_one_pokemon/"
 
   AddPokemonApi:
     Description: "API Gateway endpoint URL for AddPokemon function"
@@ -102,9 +121,17 @@ Outputs:
     Description: "API Gateway endpoint URL for UpdatePokemon function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update_pokemon/"
 
+  DeletePokemonApi:
+    Description: "API Gateway endpoint URL for DeletePokemon function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_pokemon/"
+
   GetPokemonFunction:
     Description: "Get Pokemon Lambda Function ARN"
     Value: !GetAtt GetPokemonFunction.Arn
+
+  GetOnePokemonFunction:
+    Description: "Get One Pokemon Lambda Function ARN"
+    Value: !GetAtt GetOnePokemonFunction.Arn
 
   AddPokemonFunction:
     Description: "Add Pokemon Lambda Function ARN"
@@ -118,14 +145,30 @@ Outputs:
     Description: "Update Pokemon Lambda Function ARN"
     Value: !GetAtt UpdatePokemonFunction.Arn
 
+  DeletePokemonFunction:
+    Description: "Delete Pokemon Lambda Function ARN"
+    Value: !GetAtt DeletePokemonFunction.Arn
+
   GetPokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Get Pokemon function"
     Value: !GetAtt GetPokemonFunctionRole.Arn
+
+  GetOnePokemonFunctionIamRole:
+    Description: "Implicit IAM Role created for Get One Pokemon function"
+    Value: !GetAtt GetOnePokemonFunctionRole.Arn
 
   AddPokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Add Pokemon function"
     Value: !GetAtt AddPokemonFunctionRole.Arn
 
+  AddBadgesFuctionIamRole:
+    Description: "Implicit IAM Role created for Add Badges function"
+    Value: !GetAtt AddBadgesFunctionRole.Arn
+
   UpdatePokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Update Pokemon function"
     Value: !GetAtt UpdatePokemonFunctionRole.Arn
+
+  DeletePokemonFunctionIamRole:
+    Description: "Implicit IAM Role created for Delete Pokemon function"
+    Value: !GetAtt DeletePokemonFunctionRole.Arn
