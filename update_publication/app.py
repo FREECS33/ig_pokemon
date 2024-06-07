@@ -1,10 +1,9 @@
 import json
 import pymysql
 
-host = "sionpo.clouqoguo4hz.us-east-2.rds.amazonaws.com"
-name = "admin"
-password = "sionpo2024"
-db_name = "SIONPO"
+from secrets_manager import get_secret
+
+secret_name = "sionpoKeys"
 
 
 def lambda_handler(event, context):
@@ -12,11 +11,12 @@ def lambda_handler(event, context):
     pokemon_id = body.get("id_pokemon")
     updated_data = body.get("updated_data", {})
 
+    secret = get_secret(secret_name)
     connection = pymysql.connect(
-        host=host,
-        user=name,
-        password=password,
-        db=db_name,
+        host=secret['host'],
+        user=secret['username'],
+        password=secret['password'],
+        db='SIONPO',
         connect_timeout=5
     )
 

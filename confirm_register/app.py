@@ -19,34 +19,22 @@ def get_secret_hash(username, client_id, client_secret):
 
 def lambda_handler(event, context):
     username = event['username']
-    password = event['password']
-    email = event['email']
-    picture = event['picture']
+    confirmation_code = event['confirmation_code']
 
     client = boto3.client('cognito-idp')
 
     secret_hash = get_secret_hash(username, secret['CLIENT_ID'], secret['CLIENT_SECRET'])
 
     try:
-        response = client.sign_up(
+        response = client.confirm_sign_up(
             ClientId=secret['CLIENT_ID'],
-            SecretHash=secret_hash,
             Username=username,
-            Password=password,
-            UserAttributes=[
-                {
-                    'Name': 'email',
-                    'Value': email
-                },
-                {
-                    'Name': 'picture',
-                    'Value': picture
-                }
-            ],
+            ConfirmationCode=confirmation_code,
+            SecretHash=secret_hash,
         )
         return {
             'statusCode': 200,
-            'body': json.dumps({'message': 'User registration successful', 'user_sub': response['UserSub']})
+            'body': json.dumps({'message': 'User account confirmed successfully'})
         }
     except ClientError as e:
         return {

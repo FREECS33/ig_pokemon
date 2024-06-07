@@ -1,15 +1,13 @@
 import json
 import pytest
-from register_user import app
+from confirm_register import app
 
 
 @pytest.fixture()
 def apigw_event():
     return {
         "username": "zel",
-        "password": "TestPassword123!",
-        "email": "20213tn116@utez.edu.mx",
-        "picture": "https://example.com/profile.jpg"
+        "confirmation_code": "754981"
     }
 
 
@@ -20,8 +18,8 @@ def test_lambda_handler(apigw_event):
 
     if ret["statusCode"] == 200:
         data = json.loads(ret["body"])
-        print("Registration Result:", data)
-        assert "message" in data and data["message"] == "User registration successful"
+        print("Confirmation Result:", data)
+        assert "message" in data and data["message"] == "User account confirmed successfully"
     else:
         print("Error:", ret["body"])
         assert "error" in json.loads(ret["body"])

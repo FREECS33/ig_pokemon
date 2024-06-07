@@ -1,23 +1,24 @@
 import json
 import pymysql
 
-host = "sionpo.clouqoguo4hz.us-east-2.rds.amazonaws.com"
-name = "admin"
-password = "sionpo2024"
-db_name = "SIONPO"
+from secrets_manager import get_secret
+
+secret_name = "sionpoKeys"
+
 
 def lambda_handler(event, context):
+    secret = get_secret(secret_name)
     connection = pymysql.connect(
-        host=host,
-        user=name,
-        password=password,
-        db=db_name,
+        host=secret['host'],
+        user=secret['username'],
+        password=secret['password'],
+        db='SIONPO',
         connect_timeout=5
     )
+
     try:
 
         body = json.loads(event['body'])
-
 
         pokemon_name = body['pokemon_name']
         abilities = json.dumps(body['abilities'])
@@ -30,7 +31,6 @@ def lambda_handler(event, context):
         creation_update_date = body['creation_update_date']
         id_pokemon = body['id_pokemon']
         fk_id_user_creator = body['fk_id_user_creator']
-
 
         with connection.cursor() as cursor:
             sql = """
@@ -49,11 +49,9 @@ def lambda_handler(event, context):
             ))
             connection.commit()
 
-
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM Pokemon")
             result = cursor.fetchall()
-
 
         response = {
             "statusCode": 200,
