@@ -100,6 +100,21 @@ Resources:
             Path: /delete_pokemon
             Method: delete
 
+  RegisterModeratorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: register_moderator/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        DeletePokemon:
+          Type: Api
+          Properties:
+            Path: /new_moderator
+            Method: post
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
@@ -125,6 +140,10 @@ Outputs:
     Description: "API Gateway endpoint URL for DeletePokemon function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_pokemon/"
 
+  RegisterModeratorApi:
+    Description: "API Gateway endpoint URL for RegisterModerator function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/new_moderator/"
+
   GetPokemonFunction:
     Description: "Get Pokemon Lambda Function ARN"
     Value: !GetAtt GetPokemonFunction.Arn
@@ -149,6 +168,10 @@ Outputs:
     Description: "Delete Pokemon Lambda Function ARN"
     Value: !GetAtt DeletePokemonFunction.Arn
 
+  RegisterModeratorFunction:
+    Description: "Register Moderator Lambda Function ARN"
+    Value: !GetAtt RegisterModeratorFunction.Arn
+
   GetPokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Get Pokemon function"
     Value: !GetAtt GetPokemonFunctionRole.Arn
@@ -172,3 +195,7 @@ Outputs:
   DeletePokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Delete Pokemon function"
     Value: !GetAtt DeletePokemonFunctionRole.Arn
+
+  RegisterModeratorFunctionIamRole:
+    Description: "Implicit IAM Role created for Register moderator function"
+    Value: !GetAtt RegisterModeratorFunctionRole.Arn
