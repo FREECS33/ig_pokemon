@@ -13,8 +13,8 @@ Resources:
   GetPokemonFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: get_data_all_pokemon/app.lambda_handler
+      CodeUri: get_data_all_pokemon/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -28,8 +28,8 @@ Resources:
   GetOnePokemonFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: get_publication/app.lambda_handler
+      CodeUri: get_publication/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -43,8 +43,8 @@ Resources:
   AddPokemonFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: post_publication/app.lambda_handler
+      CodeUri: post_publication/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -58,8 +58,8 @@ Resources:
   AddBadgesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: post_badges/app.lambda_handler
+      CodeUri: post_badges/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -73,8 +73,8 @@ Resources:
   UpdatePokemonFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: update_publication/app.lambda_handler
+      CodeUri: update_publication/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -88,8 +88,8 @@ Resources:
   DeletePokemonFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: delete_publication/app.lambda_handler
+      CodeUri: delete_publication/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -103,8 +103,8 @@ Resources:
   DeleteBadgeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: delete_badges/app.lambda_handler
+      CodeUri: delete_badges/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -118,8 +118,8 @@ Resources:
   RegisterModeratorFunction:
       Type: AWS::Serverless::Function
       Properties:
-        CodeUri: .
-        Handler: register_moderator/app.lambda_handler
+        CodeUri: register_moderator/
+        Handler: app.lambda_handler
         Runtime: python3.12
         Architectures:
           - x86_64
@@ -133,8 +133,8 @@ Resources:
   DeleteReactionFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: delete_reaction/app.lambda_handler
+      CodeUri: delete_reaction/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -148,8 +148,8 @@ Resources:
   RegisterUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: register_user/app.lambda_handler
+      CodeUri: register_user/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -163,8 +163,8 @@ Resources:
   ConfirmRegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: confirm_register/app.lambda_handler
+      CodeUri: confirm_register/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
@@ -178,8 +178,8 @@ Resources:
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .
-      Handler: login/app.lambda_handler
+      CodeUri: login/
+      Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64

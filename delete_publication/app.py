@@ -2,17 +2,31 @@ import json
 
 import pymysql
 
-from secrets_manager import get_secret
+import boto3
 
-secret_name = "sionpoKeys"
+
+def get_secret(secret_name):
+    region_name = 'us-east-2'
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        response = client.get_secret_value(SecretId=secret_name)
+        secret = response['SecretString']
+        return json.loads(secret)
+    except Exception as e:
+        raise Exception(f"Error retrieving secret {secret_name}: {str(e)}")
 
 
 def lambda_handler(event, context):
-    secret = get_secret(secret_name)
+    secrets = get_secret('sionpoKeys')
     connection = pymysql.connect(
-        host=secret['host'],
-        user=secret['username'],
-        password=secret['password'],
+        host=secrets['host'],
+        user=secrets['username'],
+        password=secrets['password'],
         db='SIONPO',
         connect_timeout=5
     )
