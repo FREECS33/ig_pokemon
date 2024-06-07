@@ -28,6 +28,12 @@ jobs:
           pip install -r get_publication/requirements.txt
           pip install -r get_data_all_pokemon/requirements.txt
           pip install -r post_publication/requirements.txt
+          pip install -r delete_badges/requirements.txt
+          pip install -r delete_publication/requirements.txt
+          pip install -r post_badges/requirements.txt
+          pip install -r post_reaction/requirements.txt
+          pip install -r register_moderator/requirements.txt
+          pip install -r register_user/requirements.txt
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -58,6 +64,12 @@ jobs:
           pip install -r get_publication/requirements.txt
           pip install -r get_data_all_pokemon/requirements.txt
           pip install -r post_publication/requirements.txt
+          pip install -r delete_badges/requirements.txt
+          pip install -r delete_publication/requirements.txt
+          pip install -r post_badges/requirements.txt
+          pip install -r post_reaction/requirements.txt
+          pip install -r register_moderator/requirements.txt
+          pip install -r register_user/requirements.txt
 
       - name: Install AWS CLI
         run: |
