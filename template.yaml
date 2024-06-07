@@ -114,8 +114,8 @@ Resources:
           Properties:
             Path: /delete_badges
             Method: delete
-         
-    RegisterModeratorFunction:
+
+  RegisterModeratorFunction:
       Type: AWS::Serverless::Function
       Properties:
         CodeUri: register_moderator/
@@ -124,12 +124,11 @@ Resources:
         Architectures:
           - x86_64
         Events:
-          DeletePokemon:
+          RegisterModerator:
             Type: Api
             Properties:
               Path: /new_moderator
               Method: post
-
 
 Outputs:
   GetPokemonApi:
