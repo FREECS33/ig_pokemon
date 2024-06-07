@@ -55,6 +55,21 @@ Resources:
             Path: /add_pokemon
             Method: post
 
+  AddBadgesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: post_badges/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        AddPokemon:
+          Type: Api
+          Properties:
+            Path: /add_badges
+            Method: post
+
   UpdatePokemonFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -79,6 +94,10 @@ Outputs:
     Description: "API Gateway endpoint URL for AddPokemon function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/add_pokemon/"
 
+  AddBadgesApi:
+    Description: "API Gateway endpoint URL for AddBadges function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/add_badges/"
+
   UpdatePokemonApi:
     Description: "API Gateway endpoint URL for UpdatePokemon function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update_pokemon/"
@@ -90,6 +109,10 @@ Outputs:
   AddPokemonFunction:
     Description: "Add Pokemon Lambda Function ARN"
     Value: !GetAtt AddPokemonFunction.Arn
+
+  AddBadgesFunction:
+    Description: "Add Badges Lambda Function ARN"
+    Value: !GetAtt AddBadgesFunction.Arn
 
   UpdatePokemonFunction:
     Description: "Update Pokemon Lambda Function ARN"
