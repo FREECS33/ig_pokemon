@@ -100,6 +100,21 @@ Resources:
             Path: /delete_pokemon
             Method: delete
 
+  DeleteBadgeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: delete_badges/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        DeletePokemon:
+          Type: Api
+          Properties:
+            Path: /delete_badges
+            Method: delete
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
@@ -125,6 +140,10 @@ Outputs:
     Description: "API Gateway endpoint URL for DeletePokemon function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_pokemon/"
 
+  DeleteBadgesApi:
+    Description: "API Gateway endpoint URL for Badge function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_badges/"
+
   GetPokemonFunction:
     Description: "Get Pokemon Lambda Function ARN"
     Value: !GetAtt GetPokemonFunction.Arn
@@ -148,6 +167,10 @@ Outputs:
   DeletePokemonFunction:
     Description: "Delete Pokemon Lambda Function ARN"
     Value: !GetAtt DeletePokemonFunction.Arn
+
+  DeleteBadgeFunction:
+    Description: "Delete badge Lambda Function ARN"
+    Value: !GetAtt DeleteBadgeFunction.Arn
 
   GetPokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Get Pokemon function"
