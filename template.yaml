@@ -100,10 +100,10 @@ Resources:
             Path: /delete_pokemon
             Method: delete
 
-  RegisterModeratorFunction:
+  DeleteBadgeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: register_moderator/
+      CodeUri: delete_badges/
       Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
@@ -112,8 +112,24 @@ Resources:
         DeletePokemon:
           Type: Api
           Properties:
-            Path: /new_moderator
-            Method: post
+            Path: /delete_badges
+            Method: delete
+         
+    RegisterModeratorFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+        CodeUri: register_moderator/
+        Handler: app.lambda_handler
+        Runtime: python3.12
+        Architectures:
+          - x86_64
+        Events:
+          DeletePokemon:
+            Type: Api
+            Properties:
+              Path: /new_moderator
+              Method: post
+
 
 Outputs:
   GetPokemonApi:
@@ -140,6 +156,10 @@ Outputs:
     Description: "API Gateway endpoint URL for DeletePokemon function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_pokemon/"
 
+  DeleteBadgesApi:
+    Description: "API Gateway endpoint URL for Badge function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_badges/"
+    
   RegisterModeratorApi:
     Description: "API Gateway endpoint URL for RegisterModerator function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/new_moderator/"
@@ -168,6 +188,10 @@ Outputs:
     Description: "Delete Pokemon Lambda Function ARN"
     Value: !GetAtt DeletePokemonFunction.Arn
 
+  DeleteBadgeFunction:
+    Description: "Delete badge Lambda Function ARN"
+    Value: !GetAtt DeleteBadgeFunction.Arn
+    
   RegisterModeratorFunction:
     Description: "Register Moderator Lambda Function ARN"
     Value: !GetAtt RegisterModeratorFunction.Arn
@@ -195,7 +219,7 @@ Outputs:
   DeletePokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Delete Pokemon function"
     Value: !GetAtt DeletePokemonFunctionRole.Arn
-
+    
   RegisterModeratorFunctionIamRole:
     Description: "Implicit IAM Role created for Register moderator function"
     Value: !GetAtt RegisterModeratorFunctionRole.Arn
