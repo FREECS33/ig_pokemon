@@ -130,20 +130,20 @@ Resources:
               Path: /new_moderator
               Method: post
 
-  RegisterUserFunction:
+  DeleteReactionFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: register_user/
+      CodeUri: delete_reaction/
       Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
         - x86_64
       Events:
-        RegisterUser:
+        DeleteReaction:
           Type: Api
           Properties:
-            Path: /register_user
-            Method: post
+            Path: /delete_reaction
+            Method: delete
 
 Outputs:
   GetPokemonApi:
@@ -178,9 +178,9 @@ Outputs:
     Description: "API Gateway endpoint URL for RegisterModerator function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/new_moderator/"
 
-  RegisterUserApi:
-    Description: "API Gateway endpoint URL for RegisterModerator function"
-    Value: !Sub "https;//${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_user/"
+  DeleteReactionApi:
+    Description: "API Gateway endpoint URL for DeleteReaction function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_reaction/"
 
   GetPokemonFunction:
     Description: "Get Pokemon Lambda Function ARN"
@@ -214,9 +214,9 @@ Outputs:
     Description: "Register Moderator Lambda Function ARN"
     Value: !GetAtt RegisterModeratorFunction.Arn
 
-  RegisterUserFuncton:
-    Description: "Register User Lambda function ARN"
-    Value: !GetAtt RegisterUserFunction.Arn
+  DeleteReactionFunction:
+    Description: "Delete Reaction Lambda Function ARN"
+    Value: !GetAtt  DeleteReactionFunction.Arn
 
   GetPokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Get Pokemon function"
@@ -246,6 +246,6 @@ Outputs:
     Description: "Implicit IAM Role created for Register moderator function"
     Value: !GetAtt RegisterModeratorFunctionRole.Arn
 
-  RegisterUserFunctionIamRole:
-    Description: "Implicit IAM Role created for Register user function"
-    Value: !GetAtt RegisterUserFunctionRole.Arn
+  DeleteReactionFunctionIamRole:
+    Description: "Implicit IAM Role created for Delete Reaction function"
+    Value: !GetAtt DeleteReactionFunctionRole.Arn
