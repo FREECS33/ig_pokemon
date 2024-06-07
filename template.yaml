@@ -25,7 +25,7 @@ Resources:
             Path: /get_pokemon
             Method: get
 
-  GetOnePokemonFuncton:
+  GetOnePokemonFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: get_publication/
