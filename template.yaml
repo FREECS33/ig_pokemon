@@ -130,6 +130,21 @@ Resources:
               Path: /new_moderator
               Method: post
 
+  RegisterUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: register_user/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        RegisterUser:
+          Type: Api
+          Properties:
+            Path: /register_user
+            Method: post
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
@@ -163,6 +178,10 @@ Outputs:
     Description: "API Gateway endpoint URL for RegisterModerator function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/new_moderator/"
 
+  RegisterUserApi:
+    Description: "API Gateway endpoint URL for RegisterModerator function"
+    Value: !Sub "https;//${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_user/"
+
   GetPokemonFunction:
     Description: "Get Pokemon Lambda Function ARN"
     Value: !GetAtt GetPokemonFunction.Arn
@@ -195,6 +214,10 @@ Outputs:
     Description: "Register Moderator Lambda Function ARN"
     Value: !GetAtt RegisterModeratorFunction.Arn
 
+  RegisterUserFuncton:
+    Description: "Register User Lambda function ARN"
+    Value: !GetAtt RegisterUserFunction.Arn
+
   GetPokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Get Pokemon function"
     Value: !GetAtt GetPokemonFunctionRole.Arn
@@ -222,3 +245,7 @@ Outputs:
   RegisterModeratorFunctionIamRole:
     Description: "Implicit IAM Role created for Register moderator function"
     Value: !GetAtt RegisterModeratorFunctionRole.Arn
+
+  RegisterUserFunctionIamRole:
+    Description: "Implicit IAM Role created for Register user function"
+    Value: !GetAtt RegisterUserFunctionRole.Arn
