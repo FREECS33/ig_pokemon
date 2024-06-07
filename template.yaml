@@ -145,6 +145,21 @@ Resources:
             Path: /delete_reaction
             Method: delete
 
+  RegisterUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: register_user/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        DeleteReaction:
+          Type: Api
+          Properties:
+            Path: /register_user
+            Method: post
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
@@ -182,6 +197,10 @@ Outputs:
     Description: "API Gateway endpoint URL for DeleteReaction function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_reaction/"
 
+  RegisterUserApi:
+    Description: "API Gateway endpoint URL for RegisterUser function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_user/"
+
   GetPokemonFunction:
     Description: "Get Pokemon Lambda Function ARN"
     Value: !GetAtt GetPokemonFunction.Arn
@@ -218,6 +237,10 @@ Outputs:
     Description: "Delete Reaction Lambda Function ARN"
     Value: !GetAtt  DeleteReactionFunction.Arn
 
+  RegisterUserFunction:
+    Description: "Register User Lambda Function ARN"
+    Value: !GetAtt  RegisterUserFunction.Arn
+
   GetPokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Get Pokemon function"
     Value: !GetAtt GetPokemonFunctionRole.Arn
@@ -249,3 +272,7 @@ Outputs:
   DeleteReactionFunctionIamRole:
     Description: "Implicit IAM Role created for Delete Reaction function"
     Value: !GetAtt DeleteReactionFunctionRole.Arn
+
+  RegisterUserFunctionIamRole:
+    Description: "Implicit IAM Role created for Register User function"
+    Value: !GetAtt RegisterUserFunctionRole.Arn
