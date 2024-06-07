@@ -1,35 +1,21 @@
 import json
 import pymysql
-import boto3
 
-
-def get_secret(secret_name):
-    region_name = 'us-east-2'
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
-
-    try:
-        response = client.get_secret_value(SecretId=secret_name)
-        secret = response['SecretString']
-        return json.loads(secret)
-    except Exception as e:
-        raise Exception(f"Error retrieving secret {secret_name}: {str(e)}")
+host = "sionpo.clouqoguo4hz.us-east-2.rds.amazonaws.com"
+name = "admin"
+password = "sionpo2024"
+db_name = "SIONPO"
 
 
 def lambda_handler(event, context):
     try:
-        secrets = get_secret('sionpoKeys')
         connection = pymysql.connect(
-            host=secrets['host'],
-            user=secrets['username'],
-            password=secrets['password'],
-            db='SIONPO',
+            host=host,
+            user=name,
+            password=password,
+            db=db_name,
             connect_timeout=5
         )
-
     except pymysql.MySQLError as e:
         return {
             "statusCode": 500,

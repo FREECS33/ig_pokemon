@@ -1,37 +1,23 @@
 import json
 import pymysql
-import boto3
 
-
-def get_secret(secret_name):
-    region_name = 'us-east-2'
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
-
-    try:
-        response = client.get_secret_value(SecretId=secret_name)
-        secret = response['SecretString']
-        return json.loads(secret)
-    except Exception as e:
-        raise Exception(f"Error retrieving secret {secret_name}: {str(e)}")
-
+host = "sionpo.clouqoguo4hz.us-east-2.rds.amazonaws.com"
+name = "admin"
+password = "sionpo2024"
+db_name = "SIONPO"
 
 def lambda_handler(event, context):
-    secrets = get_secret('sionpoKeys')
     connection = pymysql.connect(
-        host=secrets['host'],
-        user=secrets['username'],
-        password=secrets['password'],
-        db='SIONPO',
+        host=host,
+        user=name,
+        password=password,
+        db=db_name,
         connect_timeout=5
     )
-
     try:
 
         body = json.loads(event['body'])
+
 
         pokemon_name = body['pokemon_name']
         abilities = json.dumps(body['abilities'])
@@ -44,6 +30,7 @@ def lambda_handler(event, context):
         creation_update_date = body['creation_update_date']
         id_pokemon = body['id_pokemon']
         fk_id_user_creator = body['fk_id_user_creator']
+
 
         with connection.cursor() as cursor:
             sql = """
@@ -62,9 +49,11 @@ def lambda_handler(event, context):
             ))
             connection.commit()
 
+
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM Pokemon")
             result = cursor.fetchall()
+
 
         response = {
             "statusCode": 200,

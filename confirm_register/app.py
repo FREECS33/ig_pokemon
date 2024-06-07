@@ -5,26 +5,9 @@ import hmac
 import hashlib
 import base64
 
-
-def get_secret(secret_name):
-    region_name = 'us-east-2'
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
-
-    try:
-        response = client.get_secret_value(SecretId=secret_name)
-        secret = response['SecretString']
-        return json.loads(secret)
-    except Exception as e:
-        raise Exception(f"Error retrieving secret {secret_name}: {str(e)}")
-
-
-secrets = get_secret('cognitoKeys')
-
-USER_POOL_ID = secrets['USER_POOL_ID']
+USER_POOL_ID = 'us-east-2_NDXZOG7DQ'
+CLIENT_ID = '5s5c1ofpkq30gkbt61q1hdicfd'
+CLIENT_SECRET = '1lokp6a2dcn0a27j7shp20qpog3qo9pnh6a9advg6sp73hgndkgd'
 
 
 def get_secret_hash(username, client_id, client_secret):
@@ -39,11 +22,11 @@ def lambda_handler(event, context):
 
     client = boto3.client('cognito-idp')
 
-    secret_hash = get_secret_hash(username, secrets['CLIENT_ID'], secrets['CLIENT_SECRET'])
+    secret_hash = get_secret_hash(username, CLIENT_ID, CLIENT_SECRET)
 
     try:
         response = client.confirm_sign_up(
-            ClientId=secrets['CLIENT_ID'],
+            ClientId=CLIENT_ID,
             Username=username,
             ConfirmationCode=confirmation_code,
             SecretHash=secret_hash,

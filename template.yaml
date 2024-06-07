@@ -18,13 +18,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:sionpoKeys"
       Events:
         GetPokemon:
           Type: Api
@@ -40,13 +33,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:sionpoKeys"
       Events:
         GetOnePokemon:
           Type: Api
@@ -62,13 +48,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:sionpoKeys"
       Events:
         AddPokemon:
           Type: Api
@@ -84,13 +63,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:sionpoKeys"
       Events:
         AddPokemon:
           Type: Api
@@ -106,13 +78,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:sionpoKeys"
       Events:
         UpdatePokemon:
           Type: Api
@@ -128,13 +93,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:sionpoKeys"
       Events:
         DeletePokemon:
           Type: Api
@@ -150,13 +108,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:sionpoKeys"
       Events:
         DeletePokemon:
           Type: Api
@@ -172,13 +123,6 @@ Resources:
         Runtime: python3.12
         Architectures:
           - x86_64
-        Policies:
-          - Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - "secretsmanager:GetSecretValue"
-                Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:sionpoKeys"
         Events:
           RegisterModerator:
             Type: Api
@@ -194,13 +138,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:sionpoKeys"
       Events:
         DeleteReaction:
           Type: Api
@@ -216,13 +153,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:cognitoKeys"
       Events:
         DeleteReaction:
           Type: Api
@@ -238,13 +168,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:cognitoKeys"
       Events:
         ConfirmRegister:
           Type: Api
@@ -260,13 +183,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Action:
-                - "secretsmanager:GetSecretValue"
-              Resource: "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:cognitoKeys"
       Events:
         Login:
           Type: Api
