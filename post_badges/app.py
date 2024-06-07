@@ -1,30 +1,30 @@
 import json
 import pymysql
 
-from secrets_manager import get_secret
-
-secret_name = "sionpoKeys"
-
+host = "sionpo.clouqoguo4hz.us-east-2.rds.amazonaws.com"
+name = "admin"
+password = "sionpo2024"
+db_name = "SIONPO"
 
 def lambda_handler(event, context):
-    secret = get_secret(secret_name)
     connection = pymysql.connect(
-        host=secret['host'],
-        user=secret['username'],
-        password=secret['password'],
-        db='SIONPO',
+        host=host,
+        user=name,
+        password=password,
+        db=db_name,
         connect_timeout=5
     )
-
     try:
 
         body = json.loads(event['body'])
+
 
         badge_name = body['badge_name']
         description = json.dumps(body['description'])
         standard_to_get = body['standard_to_get']
         date_earned = body['date_earned']
         image = body['image']
+
 
         with connection.cursor() as cursor:
             sql = """
@@ -39,9 +39,11 @@ def lambda_handler(event, context):
             ))
             connection.commit()
 
+
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM Badges")
             result = cursor.fetchall()
+
 
         response = {
             "statusCode": 200,

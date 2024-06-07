@@ -1,22 +1,21 @@
 import json
 import pymysql
 
-from secrets_manager import get_secret
-
-secret_name = "sionpoKeys"
+host = "sionpo.clouqoguo4hz.us-east-2.rds.amazonaws.com"
+name = "admin"
+password = "sionpo2024"
+db_name = "SIONPO"
 
 
 def lambda_handler(event, context):
     try:
-        secret = get_secret(secret_name)
         connection = pymysql.connect(
-            host=secret['host'],
-            user=secret['username'],
-            password=secret['password'],
-            db='SIONPO',
+            host=host,
+            user=name,
+            password=password,
+            db=db_name,
             connect_timeout=5
         )
-
     except pymysql.MySQLError as e:
         return {
             "statusCode": 500,
