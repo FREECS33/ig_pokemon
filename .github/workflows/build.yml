@@ -5,10 +5,7 @@ on:
       - main
       - develop
   pull_request:
-    branches:
-      - main
-      - develop
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened]
 
 jobs:
   sonarcloud:
@@ -25,13 +22,6 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Debug Info
-        run: |
-          echo "Running on branch ${{ github.ref }}"
-          echo "Event name: ${{ github.event_name }}"
-          echo "Event path: ${{ github.event_path }}"
-          cat ${{ github.event_path }}
-
       - name: Install dependencies
         run: |
           pip install -r update_publication/requirements.txt
@@ -42,7 +32,7 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   deploy:
