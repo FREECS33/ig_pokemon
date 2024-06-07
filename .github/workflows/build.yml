@@ -34,6 +34,9 @@ jobs:
           pip install -r post_reaction/requirements.txt
           pip install -r register_moderator/requirements.txt
           pip install -r register_user/requirements.txt
+          pip install -r confirm_register/requirements.txt
+          pip install -r delete_reaction/requirements.txt
+          pip install -r login/requirements.txt
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -70,6 +73,9 @@ jobs:
           pip install -r post_reaction/requirements.txt
           pip install -r register_moderator/requirements.txt
           pip install -r register_user/requirements.txt
+          pip install -r confirm_register/requirements.txt
+          pip install -r delete_reaction/requirements.txt
+          pip install -r login/requirements.txt
 
       - name: Install AWS CLI
         run: |

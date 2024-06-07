@@ -160,6 +160,36 @@ Resources:
             Path: /register_user
             Method: post
 
+  ConfirmRegisterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: confirm_register/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        ConfirmRegister:
+          Type: Api
+          Properties:
+            Path: /confirm_register
+            Method: post
+
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: login/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            Path: /login
+            Method: post
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
@@ -201,6 +231,14 @@ Outputs:
     Description: "API Gateway endpoint URL for RegisterUser function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_user/"
 
+  ConfirmRegisterApi:
+    Description: "API Gateway endpoint URL for ConfirmRegister function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/confirm_register/"
+
+  LoginApi:
+    Description: "API Gateway endpoint URL for Login function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login/"
+
   GetPokemonFunction:
     Description: "Get Pokemon Lambda Function ARN"
     Value: !GetAtt GetPokemonFunction.Arn
@@ -241,6 +279,14 @@ Outputs:
     Description: "Register User Lambda Function ARN"
     Value: !GetAtt  RegisterUserFunction.Arn
 
+  ConfirmRegisterFunction:
+    Description: "Confirm Register Lambda Function ARN"
+    Value: !GetAtt ConfirmRegisterFunction.Arn
+
+  LoginFunction:
+    Description: "Login Lambda Function ARN"
+    Value: !GetAtt LoginFunction.Arn
+
   GetPokemonFunctionIamRole:
     Description: "Implicit IAM Role created for Get Pokemon function"
     Value: !GetAtt GetPokemonFunctionRole.Arn
@@ -276,3 +322,11 @@ Outputs:
   RegisterUserFunctionIamRole:
     Description: "Implicit IAM Role created for Register User function"
     Value: !GetAtt RegisterUserFunctionRole.Arn
+
+  ConfirmRegisterFucntionIamRole:
+    Description: "Implicit IAM Role created for Confirm Register function"
+    Value: !GetAtt ConfirmRegisterFunctionRole.Arn
+
+  LoginFunctionIamRole:
+    Description: "Implicit IAM Role created for Login function"
+    Value: !GetAtt LoginFunctionRole.Arn
