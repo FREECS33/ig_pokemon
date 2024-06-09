@@ -10,20 +10,16 @@ Globals:
     Timeout: 3
 
 Resources:
-  GetPokemonFunction:
-    Type: AWS::Serverless::Function
+  LambdaBasicExecutionRole:
+    Type: AWS::IAM::Role
     Properties:
-      CodeUri: get_data_all_pokemon/
-      Handler: app.lambda_handler
-      Runtime: python3.12
-      Architectures:
-        - x86_64
-      Events:
-        GetPokemon:
-          Type: Api
-          Properties:
-            Path: /get_pokemon
-            Method: get
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
       Policies:
         - PolicyName: LambdaBasicExecution
           PolicyDocument:
@@ -35,7 +31,23 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
+                Resource: "*"
+
+  GetPokemonFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_data_all_pokemon/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
+      Events:
+        GetPokemon:
+          Type: Api
+          Properties:
+            Path: /get_pokemon
+            Method: get
 
   GetOnePokemonFunction:
     Type: AWS::Serverless::Function
@@ -45,24 +57,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         GetOnePokemon:
           Type: Api
           Properties:
             Path: /get_one_pokemon
             Method: get
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   AddPokemonFunction:
     Type: AWS::Serverless::Function
@@ -72,24 +73,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         AddPokemon:
           Type: Api
           Properties:
             Path: /add_pokemon
             Method: post
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   AddBadgesFunction:
     Type: AWS::Serverless::Function
@@ -99,24 +89,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         AddPokemon:
           Type: Api
           Properties:
             Path: /add_badges
             Method: post
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   AddReactionFunction:
     Type: AWS::Serverless::Function
@@ -126,24 +105,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         AddPokemon:
           Type: Api
           Properties:
             Path: /add_reaction
             Method: post
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   UpdatePokemonFunction:
     Type: AWS::Serverless::Function
@@ -153,24 +121,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         UpdatePokemon:
           Type: Api
           Properties:
             Path: /update_pokemon
             Method: put
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   DeletePokemonFunction:
     Type: AWS::Serverless::Function
@@ -180,24 +137,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         DeletePokemon:
           Type: Api
           Properties:
             Path: /delete_pokemon
             Method: delete
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   DeleteBadgeFunction:
     Type: AWS::Serverless::Function
@@ -207,24 +153,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         DeletePokemon:
           Type: Api
           Properties:
             Path: /delete_badges
             Method: delete
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   RegisterModeratorFunction:
       Type: AWS::Serverless::Function
@@ -234,24 +169,13 @@ Resources:
         Runtime: python3.12
         Architectures:
           - x86_64
+        Role: !GetAtt LambdaBasicExecutionRole.Arn
         Events:
           RegisterModerator:
             Type: Api
             Properties:
               Path: /new_moderator
               Method: post
-        Policies:
-          - PolicyName: LambdaBasicExecution
-            PolicyDocument:
-              Version: '2012-10-17'
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - secretsmanager:GetSecretValue
-                    - logs:CreateLogGroup
-                    - logs:CreateLogStream
-                    - logs:PutLogEvents
-                  Resource: arn:aws:logs:*:*:*
 
   DeleteReactionFunction:
     Type: AWS::Serverless::Function
@@ -261,24 +185,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         DeleteReaction:
           Type: Api
           Properties:
             Path: /delete_reaction
             Method: delete
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   RegisterUserFunction:
     Type: AWS::Serverless::Function
@@ -288,24 +201,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         DeleteReaction:
           Type: Api
           Properties:
             Path: /register_user
             Method: post
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   ConfirmRegisterFunction:
     Type: AWS::Serverless::Function
@@ -315,24 +217,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         ConfirmRegister:
           Type: Api
           Properties:
             Path: /confirm_register
             Method: post
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
   LoginFunction:
     Type: AWS::Serverless::Function
@@ -342,24 +233,13 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
+      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         Login:
           Type: Api
           Properties:
             Path: /login
             Method: post
-      Policies:
-        - PolicyName: LambdaBasicExecution
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
 
 Outputs:
   GetPokemonApi:
