@@ -10,7 +10,7 @@ Globals:
     Timeout: 3
 
 Resources:
-  LambdaBasicExecutionRole:
+  LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -21,17 +21,14 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: LambdaBasicExecution
+        - PolicyName: SecretsManagerAccessPolicy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
                   - secretsmanager:GetSecretValue
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: "*"
+                Resource: '*'
 
   GetPokemonFunction:
     Type: AWS::Serverless::Function
@@ -39,9 +36,9 @@ Resources:
       CodeUri: get_data_all_pokemon/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         GetPokemon:
           Type: Api
@@ -55,9 +52,9 @@ Resources:
       CodeUri: get_publication/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         GetOnePokemon:
           Type: Api
@@ -71,9 +68,9 @@ Resources:
       CodeUri: post_publication/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         AddPokemon:
           Type: Api
@@ -87,9 +84,9 @@ Resources:
       CodeUri: post_badges/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         AddPokemon:
           Type: Api
@@ -103,9 +100,9 @@ Resources:
       CodeUri: post_reaction/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         AddPokemon:
           Type: Api
@@ -119,9 +116,9 @@ Resources:
       CodeUri: update_publication/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         UpdatePokemon:
           Type: Api
@@ -135,9 +132,9 @@ Resources:
       CodeUri: delete_publication/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         DeletePokemon:
           Type: Api
@@ -151,9 +148,9 @@ Resources:
       CodeUri: delete_badges/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         DeletePokemon:
           Type: Api
@@ -167,9 +164,9 @@ Resources:
         CodeUri: register_moderator/
         Handler: app.lambda_handler
         Runtime: python3.12
+        Role: !GetAtt LambdaExecutionRole.Arn
         Architectures:
           - x86_64
-        Role: !GetAtt LambdaBasicExecutionRole.Arn
         Events:
           RegisterModerator:
             Type: Api
@@ -183,9 +180,9 @@ Resources:
       CodeUri: delete_reaction/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         DeleteReaction:
           Type: Api
@@ -199,9 +196,9 @@ Resources:
       CodeUri: register_user/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         DeleteReaction:
           Type: Api
@@ -215,9 +212,9 @@ Resources:
       CodeUri: confirm_register/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         ConfirmRegister:
           Type: Api
@@ -231,9 +228,9 @@ Resources:
       CodeUri: login/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Role: !GetAtt LambdaBasicExecutionRole.Arn
       Events:
         Login:
           Type: Api
