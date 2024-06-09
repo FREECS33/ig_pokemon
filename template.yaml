@@ -24,6 +24,18 @@ Resources:
           Properties:
             Path: /get_pokemon
             Method: get
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   GetOnePokemonFunction:
     Type: AWS::Serverless::Function
@@ -39,6 +51,18 @@ Resources:
           Properties:
             Path: /get_one_pokemon
             Method: get
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   AddPokemonFunction:
     Type: AWS::Serverless::Function
@@ -54,6 +78,18 @@ Resources:
           Properties:
             Path: /add_pokemon
             Method: post
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   AddBadgesFunction:
     Type: AWS::Serverless::Function
@@ -69,6 +105,18 @@ Resources:
           Properties:
             Path: /add_badges
             Method: post
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   AddReactionFunction:
     Type: AWS::Serverless::Function
@@ -84,6 +132,18 @@ Resources:
           Properties:
             Path: /add_reaction
             Method: post
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   UpdatePokemonFunction:
     Type: AWS::Serverless::Function
@@ -99,6 +159,18 @@ Resources:
           Properties:
             Path: /update_pokemon
             Method: put
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   DeletePokemonFunction:
     Type: AWS::Serverless::Function
@@ -114,6 +186,18 @@ Resources:
           Properties:
             Path: /delete_pokemon
             Method: delete
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   DeleteBadgeFunction:
     Type: AWS::Serverless::Function
@@ -129,6 +213,18 @@ Resources:
           Properties:
             Path: /delete_badges
             Method: delete
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   RegisterModeratorFunction:
       Type: AWS::Serverless::Function
@@ -144,6 +240,18 @@ Resources:
             Properties:
               Path: /new_moderator
               Method: post
+        Policies:
+          - PolicyName: LambdaBasicExecution
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - secretsmanager:GetSecretValue
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: arn:aws:logs:*:*:*
 
   DeleteReactionFunction:
     Type: AWS::Serverless::Function
@@ -159,6 +267,18 @@ Resources:
           Properties:
             Path: /delete_reaction
             Method: delete
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   RegisterUserFunction:
     Type: AWS::Serverless::Function
@@ -174,6 +294,18 @@ Resources:
           Properties:
             Path: /register_user
             Method: post
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   ConfirmRegisterFunction:
     Type: AWS::Serverless::Function
@@ -189,6 +321,18 @@ Resources:
           Properties:
             Path: /confirm_register
             Method: post
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
   LoginFunction:
     Type: AWS::Serverless::Function
@@ -204,6 +348,18 @@ Resources:
           Properties:
             Path: /login
             Method: post
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
 
 Outputs:
   GetPokemonApi:
