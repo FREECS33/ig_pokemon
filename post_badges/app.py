@@ -24,15 +24,14 @@ def get_secret():
         raise Exception(f"Error retrieving secret {secret_name}: {str(e)}")
 
 
-secrets = get_secret()
-
-host = secrets['host']
-name = secrets['username']
-password = secrets['password']
-db_name = "SIONPO"
-
-
 def lambda_handler(event, context):
+    secrets = get_secret()
+
+    host = secrets['host']
+    name = secrets['username']
+    password = secrets['password']
+    db_name = "SIONPO"
+
     connection = pymysql.connect(
         host=host,
         user=name,
