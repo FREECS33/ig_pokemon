@@ -5,7 +5,7 @@ on:
       - main
       - develop
   pull_request:
-    types: [opened, reopened]
+    types: [closed]
 
 jobs:
   sonarcloud:
