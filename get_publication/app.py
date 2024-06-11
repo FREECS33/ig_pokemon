@@ -59,11 +59,37 @@ def lambda_handler(event, context):
             "statusCode": 200,
             "body": json.dumps(result_dict, default=str)
         }
-    except pymysql.MySQLError as error:
+
+    except KeyError as e:
+        response = {
+            "statusCode": 400,
+            "body": f"Missing key in request body: {str(e)}"
+        }
+
+    except pymysql.IntegrityError as e:
+        response = {
+            "statusCode": 422,
+            "body": f"Database integrity error: {str(e)}"
+        }
+
+    except pymysql.OperationalError as e:
+        response = {
+            "statusCode": 503,
+            "body": f"Database connection error: {str(e)}"
+        }
+
+    except pymysql.MySQLError as e:
         response = {
             "statusCode": 500,
-            "body": str(error)
+            "body": str(e)
         }
+
+    except Exception as e:
+        response = {
+            "statusCode": 403,
+            "body": str(e)
+        }
+
     finally:
         connection.close()
 
