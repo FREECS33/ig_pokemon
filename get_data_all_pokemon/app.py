@@ -57,15 +57,26 @@ def get_secret():
             "statusCode": 401,
             "body": "Incomplete AWS credentials"
         })
+    except Exception as e:
+        raise Exception({
+            "statusCode": 500,
+            "body": f"Unknown error: {str(e)}"
+        })
 
 def lambda_handler(event, context):
     try:
         secrets = get_secret()
 
-        host = secrets['host']
-        name = secrets['username']
-        password = secrets['password']
+        host = secrets.get('host')
+        name = secrets.get('username')
+        password = secrets.get('password')
         db_name = "SIONPO"
+
+        if not all([host, name, password]):
+            raise Exception({
+                "statusCode": 500,
+                "body": "One or more secrets are missing"
+            })
 
         connection = pymysql.connect(
             host=host,
@@ -106,6 +117,11 @@ def lambda_handler(event, context):
                     "statusCode": 500,
                     "body": f"Database error: {str(error)}"
                 }
+        except Exception as e:
+            response = {
+                "statusCode": 500,
+                "body": f"Query execution error: {str(e)}"
+            }
         finally:
             connection.close()
     except Exception as e:
