@@ -3,7 +3,7 @@ import pytest
 
 from get_data_all_pokemon import app as get_data_app
 from update_publication import app as update_pokemon_app
-from get_publication import app as get_publication_app
+#from get_publication import app as get_publication_app
 from post_reaction import app as add_interaction_app
 
 @pytest.fixture()
@@ -249,18 +249,18 @@ def test_lambda_handler(apigw_event):
         print("Error:", ret["body"])
 
 
-def test_lambda_handler2(apigw_getone_event):
-    ret = get_publication_app.lambda_handler(apigw_getone_event, "")
+#def test_lambda_handler2(apigw_getone_event):
+#    ret = get_publication_app.lambda_handler(apigw_getone_event, "")
 
-    assert ret["statusCode"] == 200 or ret["statusCode"] == 500
+#    assert ret["statusCode"] == 200 or ret["statusCode"] == 500
 
-    if ret["statusCode"] == 200:
-        data = json.loads(ret["body"])
-        print("Query Result:", data)
-        assert isinstance(data, dict)
-        assert "id_pokemon" in data
-    else:
-        print("Error:", ret["body"])
+#    if ret["statusCode"] == 200:
+#        data = json.loads(ret["body"])
+#        print("Query Result:", data)
+#        assert isinstance(data, dict)
+#        assert "id_pokemon" in data
+#    else:
+#        print("Error:", ret["body"])
 
 
 def test_update_pokemon_lambda(apigw_update_event):

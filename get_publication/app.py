@@ -1,11 +1,7 @@
 import json
-
 import pymysql
-
 import boto3
-
 from botocore.exceptions import ClientError
-
 
 def get_secret():
     secret_name = 'sionpoKeys'
@@ -26,22 +22,43 @@ def get_secret():
     except ClientError as e:
         raise Exception(f"Error retrieving secret {secret_name}: {str(e)}")
 
-
 def lambda_handler(event, context):
-    secrets = get_secret()
+    try:
+        secrets = get_secret()
+    except Exception as e:
+        return {
+            "statusCode": 403,
+            "body": json.dumps(f"Error retrieving secret: {str(e)}")
+        }
 
     host = secrets['host']
     name = secrets['username']
     password = secrets['password']
     db_name = "SIONPO"
 
-    connection = pymysql.connect(
-        host=host,
-        user=name,
-        password=password,
-        db=db_name,
-        connect_timeout=5
-    )
+    try:
+        connection = pymysql.connect(
+            host=host,
+            user=name,
+            password=password,
+            db=db_name,
+            connect_timeout=5
+        )
+    except pymysql.IntegrityError as e:
+        return {
+            "statusCode": 422,
+            "body": json.dumps(f"Database integrity error: {str(e)}")
+        }
+    except pymysql.OperationalError as e:
+        return {
+            "statusCode": 503,
+            "body": json.dumps(f"Database connection error: {str(e)}")
+        }
+    except pymysql.MySQLError as e:
+        return {
+            "statusCode": 500,
+            "body": json.dumps(f"Database error: {str(e)}")
+        }
 
     try:
         with connection.cursor() as cursor:
@@ -59,11 +76,37 @@ def lambda_handler(event, context):
             "statusCode": 200,
             "body": json.dumps(result_dict, default=str)
         }
-    except pymysql.MySQLError as error:
+
+    except KeyError as e:
+        response = {
+            "statusCode": 400,
+            "body": json.dumps(f"Missing key in request body: {str(e)}")
+        }
+
+    except pymysql.IntegrityError as e:
+        response = {
+            "statusCode": 422,
+            "body": json.dumps(f"Database integrity error: {str(e)}")
+        }
+
+    except pymysql.OperationalError as e:
+        response = {
+            "statusCode": 503,
+            "body": json.dumps(f"Database connection error: {str(e)}")
+        }
+
+    except pymysql.MySQLError as e:
         response = {
             "statusCode": 500,
-            "body": str(error)
+            "body": json.dumps(f"Database error: {str(e)}")
         }
+
+    except Exception as e:
+        response = {
+            "statusCode": 403,
+            "body": json.dumps(str(e))
+        }
+
     finally:
         connection.close()
 
