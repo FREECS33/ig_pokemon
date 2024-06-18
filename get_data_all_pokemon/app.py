@@ -3,6 +3,7 @@ import pymysql
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
+
 def get_secret():
     secret_name = 'sionpoKeys'
     region_name = 'us-east-2'
@@ -63,6 +64,7 @@ def get_secret():
             "body": f"Unknown error: {str(e)}"
         })
 
+
 def lambda_handler(event, context):
     try:
         secrets = get_secret()
@@ -78,36 +80,57 @@ def lambda_handler(event, context):
                 "body": "One or more secrets are missing"
             })
 
-        connection = pymysql.connect(
-            host=host,
-            user=name,
-            password=password,
-            db=db_name,
-            connect_timeout=5
-        )
-
         try:
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT * FROM Pokemon")
-                result = cursor.fetchall()
+            connection = pymysql.connect(
+                host=host,
+                user=name,
+                password=password,
+                db=db_name,
+                connect_timeout=5
+            )
 
-            response = {
-                "statusCode": 200,
-                "body": json.dumps(result, default=str)
-            }
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute("SELECT * FROM Pokemon")
+                    result = cursor.fetchall()
+
+                response = {
+                    "statusCode": 200,
+                    "body": json.dumps(result, default=str)
+                }
+            except pymysql.MySQLError as error:
+                error_code = error.args[0]
+                if error_code == 1045:
+                    response = {
+                        "statusCode": 401,
+                        "body": "Authentication error: Incorrect username or password"
+                    }
+                elif error_code == 1049:
+                    response = {
+                        "statusCode": 404,
+                        "body": "Database not found"
+                    }
+                elif error_code == 2003:
+                    response = {
+                        "statusCode": 503,
+                        "body": "Cannot connect to database server"
+                    }
+                else:
+                    response = {
+                        "statusCode": 500,
+                        "body": f"Database error: {str(error)}"
+                    }
+            except Exception as e:
+                print(f"Exception during query execution: {str(e)}")
+                response = {
+                    "statusCode": 500,
+                    "body": f"Query execution error: {str(e)}"
+                }
+            finally:
+                connection.close()
         except pymysql.MySQLError as error:
             error_code = error.args[0]
-            if error_code == 1045:
-                response = {
-                    "statusCode": 401,
-                    "body": "Authentication error: Incorrect username or password"
-                }
-            elif error_code == 1049:
-                response = {
-                    "statusCode": 404,
-                    "body": "Database not found"
-                }
-            elif error_code == 2003:
+            if error_code == 2003:
                 response = {
                     "statusCode": 503,
                     "body": "Cannot connect to database server"
@@ -115,15 +138,8 @@ def lambda_handler(event, context):
             else:
                 response = {
                     "statusCode": 500,
-                    "body": f"Database error: {str(error)}"
+                    "body": f"Database connection error: {str(error)}"
                 }
-        except Exception as e:
-            response = {
-                "statusCode": 500,
-                "body": f"Query execution error: {str(e)}"
-            }
-        finally:
-            connection.close()
     except Exception as e:
         if isinstance(e.args[0], dict) and 'statusCode' in e.args[0]:
             response = e.args[0]

@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import json
-import pytest
 
 import pymysql
 from botocore.exceptions import ClientError, NoCredentialsError
@@ -37,7 +36,6 @@ class TestLambdaHandler(unittest.TestCase):
     @patch('get_data_all_pokemon.app.get_secret')
     @patch('pymysql.connect')
     def test_lambda_handler_db_connection_error(self, mock_connect, mock_get_secret):
-        # Mock secrets
         mock_get_secret.return_value = {
             'host': 'mock-host',
             'username': 'mock-username',
@@ -45,12 +43,13 @@ class TestLambdaHandler(unittest.TestCase):
         }
 
         mock_connect.side_effect = pymysql.MySQLError(
-            "(2003, 'Can\'t connect to MySQL server on \'mock-host\' (10061)')")
+            2003, "(2003, 'Can\'t connect to MySQL server on \'mock-host\' (timed out)')")
 
         event = {}
         context = {}
 
         response = lambda_handler(event, context)
+        print(f"Lambda response: {response}")
 
         self.assertEqual(response['statusCode'], 503)
         self.assertIn('Cannot connect to database server', response['body'])
