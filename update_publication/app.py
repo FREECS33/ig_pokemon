@@ -3,6 +3,7 @@ import pymysql
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
+
 def get_secret():
     secret_name = 'sionpoKeys'
     region_name = 'us-east-2'
@@ -63,7 +64,9 @@ def get_secret():
             "body": f"Unknown error: {str(e)}"
         })
 
+
 def lambda_handler(event, context):
+    global response
     try:
         secrets = get_secret()
 
