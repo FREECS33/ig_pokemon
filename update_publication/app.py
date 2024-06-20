@@ -57,6 +57,11 @@ def get_secret():
             "statusCode": 401,
             "body": "Incomplete AWS credentials"
         })
+    except Exception as e:
+        raise Exception({
+            "statusCode": 500,
+            "body": f"Unknown error: {str(e)}"
+        })
 
 def lambda_handler(event, context):
     try:
@@ -72,11 +77,10 @@ def lambda_handler(event, context):
         updated_data = body.get("updated_data", {})
 
         if not pokemon_id or not updated_data:
-            response = {
+            return {
                 "statusCode": 400,
                 "body": json.dumps({"message": "Missing id_pokemon or updated_data in request body"})
             }
-            return response
 
         connection = pymysql.connect(
             host=host,
@@ -97,10 +101,16 @@ def lambda_handler(event, context):
                 cursor.execute(update_query, tuple(update_values))
                 connection.commit()
 
-            response = {
-                "statusCode": 200,
-                "body": json.dumps({"message": "Pokemon updated successfully"})
-            }
+                if cursor.rowcount == 0:
+                    response = {
+                        "statusCode": 404,
+                        "body": json.dumps({"message": "Pokemon not found"})
+                    }
+                else:
+                    response = {
+                        "statusCode": 200,
+                        "body": json.dumps({"message": "Pokemon updated successfully"})
+                    }
         except pymysql.MySQLError as error:
             error_code = error.args[0]
             if error_code == 1045:
@@ -135,6 +145,8 @@ def lambda_handler(event, context):
                 }
         finally:
             connection.close()
+            return response
+
     except Exception as e:
         if isinstance(e.args[0], dict) and 'statusCode' in e.args[0]:
             response = e.args[0]
@@ -144,4 +156,4 @@ def lambda_handler(event, context):
                 "body": json.dumps({"message": f"Error: {str(e)}"})
             }
 
-    return response
+        return response
