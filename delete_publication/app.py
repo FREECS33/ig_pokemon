@@ -3,6 +3,7 @@ import pymysql
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
+
 def get_secret():
     secret_name = 'sionpoKeys'
     region_name = 'us-east-2'
@@ -22,41 +23,46 @@ def get_secret():
     except ClientError as e:
         error_code = e.response['Error']['Code']
         if error_code == 'ResourceNotFoundException':
-            response = {
+            raise Exception({
                 "statusCode": 404,
-                "body": f"Secret {secret_name} not found"
-            }
+                "body": json.dumps({"message": f"Secret {secret_name} not found"})
+            })
         elif error_code == 'InvalidRequestException':
-            response = {
+            raise Exception({
                 "statusCode": 400,
-                "body": f"Invalid request for secret {secret_name}"
-            }
+                "body": json.dumps({"message": f"Invalid request for secret {secret_name}"})
+            })
         elif error_code == 'InvalidParameterException':
-            response = {
+            raise Exception({
                 "statusCode": 400,
-                "body": f"Invalid parameter for secret {secret_name}"
-            }
+                "body": json.dumps({"message": f"Invalid parameter for secret {secret_name}"})
+            })
         elif error_code == 'AccessDeniedException':
-            response = {
+            raise Exception({
                 "statusCode": 403,
-                "body": f"Access denied for secret {secret_name}"
-            }
+                "body": json.dumps({"message": f"Access denied for secret {secret_name}"})
+            })
         else:
-            response = {
+            raise Exception({
                 "statusCode": 500,
-                "body": f"Error retrieving secret {secret_name}: {str(e)}"
-            }
-        raise Exception(response)
+                "body": json.dumps({"message": f"Error retrieving secret {secret_name}: {str(e)}"})
+            })
     except NoCredentialsError:
         raise Exception({
             "statusCode": 401,
-            "body": "AWS credentials not found"
+            "body": json.dumps({"message": "AWS credentials not found"})
         })
     except PartialCredentialsError:
         raise Exception({
             "statusCode": 401,
-            "body": "Incomplete AWS credentials"
+            "body": json.dumps({"message": "Incomplete AWS credentials"})
         })
+    except Exception as e:
+        raise Exception({
+            "statusCode": 500,
+            "body": json.dumps({"message": f"Unknown error: {str(e)}"})
+        })
+
 
 def lambda_handler(event, context):
     try:
@@ -77,7 +83,7 @@ def lambda_handler(event, context):
 
         try:
             with connection.cursor() as cursor:
-                id_pokemon = event['queryStringParameters']['id_pokemon']
+                id_pokemon = event.get('queryStringParameters', {}).get('id_pokemon')
                 if not id_pokemon:
                     response = {
                         "statusCode": 400,
@@ -98,37 +104,22 @@ def lambda_handler(event, context):
                         "statusCode": 200,
                         "body": json.dumps({"message": "Pokemon deleted successfully"})
                     }
-        except pymysql.MySQLError as error:
-            error_code = error.args[0]
-            if error_code == 1045:
-                response = {
-                    "statusCode": 401,
-                    "body": json.dumps({"message": "Authentication error: Incorrect username or password"})
-                }
-            elif error_code == 1049:
-                response = {
-                    "statusCode": 404,
-                    "body": json.dumps({"message": "Database not found"})
-                }
-            elif error_code == 2003:
-                response = {
-                    "statusCode": 503,
-                    "body": json.dumps({"message": "Cannot connect to database server"})
-                }
-            else:
-                response = {
-                    "statusCode": 500,
-                    "body": json.dumps({"message": f"Database error: {str(error)}"})
-                }
+                return response
         finally:
             connection.close()
-    except Exception as e:
-        if isinstance(e.args[0], dict) and 'statusCode' in e.args[0]:
-            response = e.args[0]
-        else:
-            response = {
-                "statusCode": 500,
-                "body": json.dumps({"message": f"Error: {str(e)}"})
-            }
 
-    return response
+    except NoCredentialsError:
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"message": "AWS credentials not found"})
+        }
+    except PartialCredentialsError:
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"message": "Incomplete AWS credentials"})
+        }
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"message": str(e)})
+        }
