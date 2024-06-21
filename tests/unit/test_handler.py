@@ -238,7 +238,7 @@ def apigw_add_interaction_event():
 def test_lambda_handler(apigw_event):
     ret = get_data_app.lambda_handler(apigw_event, "")
 
-    assert ret["statusCode"] == 200 or ret["statusCode"] == 500
+    assert ret["statusCode"] == 200 or ret["statusCode"] == 503
 
     if ret["statusCode"] == 200:
         data = json.loads(ret["body"])
