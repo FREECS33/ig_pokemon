@@ -4,7 +4,7 @@ import unittest
 import json
 import pymysql
 
-# Importa la lambda desde el archivo correcto
+
 from delete_badges import app
 
 mock_event = {
