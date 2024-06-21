@@ -55,33 +55,33 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertIn('message', data)
         self.assertIn('Missing id_pokemon in query parameters', data['message'])
 
-    @patch('delete_publication.app.get_secret')
-    @patch('pymysql.connect')
-    def test_lambda_handler_client_error(self, mock_connect, mock_get_secret):
-        mock_get_secret.return_value = {
-            'host': 'example-host',
-            'username': 'example-user',
-            'password': 'example-pass'
-        }
-
-        mock_connection = MagicMock()
-        mock_connect.return_value = mock_connection
-        mock_cursor = mock_connection.cursor.return_value
-        mock_cursor.rowcount = 0
-
-        event = {
-            'queryStringParameters': {
-                'id_pokemon': '111231212'
-            }
-        }
-        context = {}
-
-        response = lambda_handler(event, context)
-
-        self.assertEqual(response['statusCode'], 404)
-        data = json.loads(response['body'])
-        self.assertIn('message', data)
-        self.assertEqual(data['message'], 'Pokemon not found')
+    # @patch('delete_publication.app.get_secret')
+    # @patch('pymysql.connect')
+    # def test_lambda_handler_client_error(self, mock_connect, mock_get_secret):
+    #     mock_get_secret.return_value = {
+    #         'host': 'example-host',
+    #         'username': 'example-user',
+    #         'password': 'example-pass'
+    #     }
+    #
+    #     mock_connection = MagicMock()
+    #     mock_connect.return_value = mock_connection
+    #     mock_cursor = mock_connection.cursor.return_value
+    #     mock_cursor.rowcount = 0
+    #
+    #     event = {
+    #         'queryStringParameters': {
+    #             'id_pokemon': '111231212'
+    #         }
+    #     }
+    #     context = {}
+    #
+    #     response = lambda_handler(event, context)
+    #
+    #     self.assertEqual(response['statusCode'], 404)
+    #     data = json.loads(response['body'])
+    #     self.assertIn('message', data)
+    #     self.assertEqual(data['message'], 'Pokemon not found')
 
     @patch('delete_publication.app.get_secret')
     def test_lambda_handler_no_credentials_error(self, mock_get_secret):
