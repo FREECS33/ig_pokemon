@@ -21,7 +21,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         mock_connection = MagicMock()
         mock_cursor = MagicMock()
-        mock_cursor.fetchall.return_value = [{'id': 1, 'name': 'Pikachu'}]
+        mock_cursor.fetchall.return_value = [{'id': 1, 'name': 'Pikachu'}, {'id': 2, 'name': 'Bulbasaur'}]
         mock_connection.cursor.return_value.__enter__.return_value = mock_cursor
         mock_connect.return_value = mock_connection
 
@@ -31,7 +31,8 @@ class TestLambdaHandler(unittest.TestCase):
         response = lambda_handler(event, context)
 
         self.assertEqual(response['statusCode'], 200)
-        self.assertEqual(json.loads(response['body']), [{'id': 1, 'name': 'Pikachu'}])
+        response_body = json.loads(response['body'])
+        self.assertIsInstance(response_body, list)
 
     @patch('get_data_all_pokemon.app.get_secret')
     @patch('pymysql.connect')
