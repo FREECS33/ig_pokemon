@@ -66,6 +66,7 @@ def get_secret():
         })
 
 
+
 def get_secret_hash(username, client_id, client_secret):
     message = username + client_id
     dig = hmac.new(client_secret.encode('utf-8'), message.encode('utf-8'), hashlib.sha256).digest()
