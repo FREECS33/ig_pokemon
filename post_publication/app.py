@@ -25,24 +25,12 @@ def get_secret():
 
 
 def lambda_handler(event, context):
-    secrets = get_secret()
-
-    host = secrets['host']
-    name = secrets['username']
-    password = secrets['password']
-    db_name = "SIONPO"
-
-    connection = pymysql.connect(
-        host=host,
-        user=name,
-        password=password,
-        db=db_name,
-        connect_timeout=5
-    )
     try:
-
         body = json.loads(event['body'])
-
+        required_fields = ['pokemon_name', 'abilities', 'types', 'description', 'image']
+        for field in required_fields:
+            if field not in body:
+                raise ValueError(f"Missing required field: {field}")
         pokemon_name = body['pokemon_name']
         abilities = json.dumps(body['abilities'])
         types = json.dumps(body['types'])
@@ -55,6 +43,47 @@ def lambda_handler(event, context):
         id_pokemon = body['id_pokemon']
         fk_id_user_creator = body['fk_id_user_creator']
 
+        if likes_count < 0:
+            return {
+                "statusCode": 422,
+                "body": json.dumps({"message": "likes_count cannot be negative"})
+            }
+        if dislikes_count < 0:
+            return {
+                "statusCode": 422,
+                "body": json.dumps({"message": "likes_count cannot be negative"})
+            }
+    except (json.JSONDecodeError, ValueError) as error:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": str(error)})
+        }
+    try:
+        secrets = get_secret()
+    except Exception as error:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"message": str(error)})
+        }
+    host = secrets['host']
+    name = secrets['username']
+    password = secrets['password']
+    db_name = "SIONPO"
+    try:
+        connection = pymysql.connect(
+            host=host,
+            user=name,
+            password=password,
+            db=db_name,
+            connect_timeout=5
+        )
+    except pymysql.MySQLError as error:
+        return {
+            "statusCode": 500,
+            "body": str(error)
+        }
+
+    try:
         with connection.cursor() as cursor:
             sql = """
                     INSERT INTO Pokemon (
@@ -78,7 +107,7 @@ def lambda_handler(event, context):
 
         response = {
             "statusCode": 200,
-            "body": json.dumps(result, default=str)
+            "body": json.dumps(result)
         }
 
     except pymysql.MySQLError as error:
