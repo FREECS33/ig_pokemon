@@ -25,24 +25,41 @@ def get_secret():
 
 
 def lambda_handler(event, context):
-    secrets = get_secret()
+    try:
+        body = json.loads(event['body'])
+        if 'badge_name' not in body or 'description' not in body or 'standard_to_get' not in body or 'date_earned' not in body or 'image' not in body:
+            raise ValueError("Missing required fields")
+    except ValueError as error:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": str(error)})
+        }
+    try:
+        secrets = get_secret()
+    except Exception as error:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"message": str(error)})
+        }
 
     host = secrets['host']
     name = secrets['username']
     password = secrets['password']
     db_name = "SIONPO"
-
-    connection = pymysql.connect(
-        host=host,
-        user=name,
-        password=password,
-        db=db_name,
-        connect_timeout=5
-    )
     try:
-
-        body = json.loads(event['body'])
-
+        connection = pymysql.connect(
+            host=host,
+            user=name,
+            password=password,
+            db=db_name,
+            connect_timeout=5
+        )
+    except pymysql.MySQLError as error:
+        return {
+            "statusCode": 503,
+            "body": json.dumps({"message": str(error)})
+        }
+    try:
         badge_name = body['badge_name']
         description = json.dumps(body['description'])
         standard_to_get = body['standard_to_get']
@@ -61,6 +78,11 @@ def lambda_handler(event, context):
                 badge_name, description, standard_to_get, date_earned, image
             ))
             connection.commit()
+    except pymysql.MySQLError as error:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"message": str(error)})
+        }
 
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM Badges")
