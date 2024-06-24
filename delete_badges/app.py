@@ -3,6 +3,7 @@ import pymysql
 import boto3
 from botocore.exceptions import ClientError
 
+
 def get_secret():
     secret_name = 'sionpoKeys'
     region_name = 'us-east-2'
@@ -22,18 +23,21 @@ def get_secret():
     except ClientError as e:
         raise Exception(f"Error retrieving secret: {e.response['Error']['Message']}")
 
+
 def lambda_handler(event, context):
     try:
-        body = json.loads(event['body'])
-        if 'id_badge' not in body:
-            raise ValueError("Missing 'id_badge' in request body")
-        id_badge = body['id_badge']
-    except (json.JSONDecodeError, ValueError) as e:
+        body = json.loads(event["body"])
+        if "id_badge" not in body:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "Missing id_badge in request body"})
+            }
+        id_badge = body["id_badge"]
+    except json.JSONDecodeError as e:
         return {
             "statusCode": 400,
-            "body": json.dumps({"error": str(e)})
+            "body": json.dumps({"message": f"Invalid JSON: {e}"})
         }
-
     try:
         secrets = get_secret()
     except Exception as e:
@@ -55,31 +59,35 @@ def lambda_handler(event, context):
             db=db_name,
             connect_timeout=5
         )
-    except pymysql.OperationalError as e:
-        return {
-            "statusCode": 503,
-            "body": json.dumps({"error": f"Database connection error: {str(e)}"})
-        }
-    except pymysql.IntegrityError as e:
-        return {
-            "statusCode": 422,
-            "body": json.dumps({"error": f"Database integrity error: {str(e)}"})
-        }
     except pymysql.MySQLError as e:
         return {
-            "statusCode": 500,
-            "body": json.dumps({"error": f"Database error: {str(e)}"})
+            "statusCode": 503,
+            "body": json.dumps({"error": f"Database connection error: {e}"})
         }
 
     try:
         with connection.cursor() as cursor:
-            update_users_sql = "UPDATE Users SET fk_id_badge = NULL WHERE fk_id_badge = %s"
-            rows_affected_users = cursor.execute(update_users_sql, (id_badge,))
-            connection.commit()
+            try:
+                update_users_sql = "UPDATE Users SET fk_id_badge = NULL WHERE fk_id_badge = %s"
+                rows_affected_users = cursor.execute(update_users_sql, (id_badge,))
+                connection.commit()
+            except pymysql.MySQLError as e:
+                connection.rollback()
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps({"error": "Error updating Users table"})
+                }
 
-            delete_badge_sql = "DELETE FROM Badges WHERE id_badge = %s"
-            rows_affected_badges = cursor.execute(delete_badge_sql, (id_badge,))
-            connection.commit()
+            try:
+                delete_badge_sql = "DELETE FROM Badges WHERE id_badge = %s"
+                rows_affected_badges = cursor.execute(delete_badge_sql, (id_badge,))
+                connection.commit()
+            except pymysql.MySQLError as e:
+                connection.rollback()
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps({"error": "Error deleting badge"})
+                }
 
             if rows_affected_badges == 0:
                 return {
@@ -87,20 +95,19 @@ def lambda_handler(event, context):
                     "body": json.dumps({"error": "Badge not found"})
                 }
 
-        response = {
-            "statusCode": 200,
-            "body": json.dumps({"message": "Badge deleted successfully"})
-        }
-    except pymysql.IntegrityError as e:
-        response = {
-            "statusCode": 422,
-            "body": json.dumps({"error": f"Database integrity error: {str(e)}"})
-        }
+            response = {
+                "statusCode": 200,
+                "body": json.dumps({"message": "Badge deleted successfully"})
+            }
+            return response
     except pymysql.MySQLError as e:
-        response = {
+        return {
             "statusCode": 500,
-            "body": json.dumps({"error": f"Database error: {str(e)}"})
+            "body": json.dumps({"error": "Database error"})
         }
-    finally:
-        connection.close()
-    return response
+
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "An unexpected error occurred"})
+        }
