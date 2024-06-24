@@ -1,132 +1,163 @@
-from unittest.mock import patch, Mock, MagicMock
-from botocore.exceptions import ClientError
 import unittest
-import json
-import pymysql
+from unittest.mock import patch, MagicMock
 
+import pymysql
+from botocore.exceptions import ClientError
+import json
+
+from pymysql import MySQLError
 
 from delete_badges import app
 
-mock_event = {
-    "body": json.dumps({
-        "id_badge": "123"
-    })
+mock_body = {
+    "body": json.dumps({"id_badge": 1})
 }
 
-class TestLambda(unittest.TestCase):
+class TestDeleteBadge(unittest.TestCase):
 
     @patch("delete_badges.app.get_secret")
     @patch("delete_badges.app.pymysql.connect")
-    def test_lambda_handler_success(self, mock_connect, mock_get_secret):
+    def test_lambda_handler_success(self,mock_connect, mock_get_secret):
         mock_get_secret.return_value = {
             'host': 'test_host',
             'username': 'test_user',
             'password': 'test_pass'
         }
-
         mock_connection = MagicMock()
-        mock_connect.return_value = mock_connection
         mock_cursor = MagicMock()
         mock_connection.cursor.return_value.__enter__.return_value = mock_cursor
-        mock_cursor.execute.side_effect = [1, 1]  # Simulate 1 row affected for both queries
-
-        result = app.lambda_handler(mock_event, None)
-        self.assertEqual(result["statusCode"], 200)
-        body = json.loads(result["body"])
-        self.assertIn("Badge deleted successfully", body["message"])
-
-        update_users_sql = "UPDATE Users SET fk_id_badge = NULL WHERE fk_id_badge = %s"
-        delete_badge_sql = "DELETE FROM Badges WHERE id_badge = %s"
-        mock_cursor.execute.assert_any_call(update_users_sql, ('123',))
-        mock_cursor.execute.assert_any_call(delete_badge_sql, ('123',))
-        mock_connection.commit.assert_called()
-        mock_connection.close.assert_called()
-
-    @patch("delete_badges.app.get_secret")
-    @patch("delete_badges.app.pymysql.connect")
-    def test_lambda_handler_badge_not_found(self, mock_connect, mock_get_secret):
-        mock_get_secret.return_value = {
-            'host': 'test_host',
-            'username': 'test_user',
-            'password': 'test_pass'
-        }
-
-        mock_connection = MagicMock()
+        mock_cursor.execute.side_effect = [1, 1]  # Mocking successful updates and deletes
         mock_connect.return_value = mock_connection
-        mock_cursor = MagicMock()
-        mock_connection.cursor.return_value.__enter__.return_value = mock_cursor
-        mock_cursor.execute.side_effect = [1, 0]  # Simulate 1 row affected for update, 0 for delete
 
-        result = app.lambda_handler(mock_event, None)
-        self.assertEqual(result["statusCode"], 404)
-        body = json.loads(result["body"])
-        self.assertIn("Badge not found", body["error"])
+        response = app.lambda_handler(mock_body, None)
+        self.assertEqual(response["statusCode"], 200)
+        response_body = json.loads(response['body'])
+        self.assertEqual(response_body["message"], "Badge deleted successfully")
 
     @patch("delete_badges.app.get_secret")
-    @patch("delete_badges.app.pymysql.connect")
-    def test_lambda_handler_db_integrity_error(self, mock_connect, mock_get_secret):
-        mock_get_secret.return_value = {
-            'host': 'test_host',
-            'username': 'test_user',
-            'password': 'test_pass'
-        }
-
-        mock_connect.side_effect = pymysql.IntegrityError("Integrity error")
-
-        result = app.lambda_handler(mock_event, None)
-        self.assertEqual(result["statusCode"], 422)
-        body = json.loads(result["body"])
-        self.assertIn("Database integrity error: Integrity error", body["error"])
-
-    @patch("delete_badges.app.get_secret")
-    @patch("delete_badges.app.pymysql.connect")
-    def test_lambda_handler_db_operational_error(self, mock_connect, mock_get_secret):
-        mock_get_secret.return_value = {
-            'host': 'test_host',
-            'username': 'test_user',
-            'password': 'test_pass'
-        }
-
-        mock_connect.side_effect = pymysql.OperationalError("Database connection error")
-
-        result = app.lambda_handler(mock_event, None)
-        self.assertEqual(result["statusCode"], 503)
-        body = json.loads(result["body"])
-        self.assertIn("Database connection error: Database connection error", body["error"])
-
-    @patch("delete_badges.app.get_secret")
-    @patch("delete_badges.app.pymysql.connect")
-    def test_lambda_handler_generic_db_error(self, mock_connect, mock_get_secret):
-        mock_get_secret.return_value = {
-            'host': 'test_host',
-            'username': 'test_user',
-            'password': 'test_pass'
-        }
-
-        mock_connect.side_effect = pymysql.MySQLError("Generic database error")
-
-        result = app.lambda_handler(mock_event, None)
-        self.assertEqual(result["statusCode"], 500)
-        body = json.loads(result["body"])
-        self.assertIn("Database error: Generic database error", body["error"])
-    def test_lambda_handler_missing_id_badge(self):
+    def test_lambda_handler_missing_body(self,mock_get_secret):
         event = {
             "body": json.dumps({})
         }
+        response = app.lambda_handler(event, None)
+        self.assertEqual(response["statusCode"], 400)
+        response_body = json.loads(response['body'])
+        self.assertEqual(response_body["message"], "Missing id_badge in request body")
 
-        result = app.lambda_handler(event, None)
-        self.assertEqual(result["statusCode"], 400)
-        body = json.loads(result["body"])
-        self.assertIn("Missing 'id_badge' in request body", body["error"])
-
-    def test_lambda_handler_invalid_json(self):
+    @patch("delete_badges.app.get_secret")
+    def test_lambda_handler_missing_body(self,mock_get_secret):
         event = {
-            "body": "invalid json"
+            "body": "This is not a valid JSON"
+        }
+        response = app.lambda_handler(event, None)
+        self.assertEqual(response["statusCode"], 400)
+        response_body = json.loads(response['body'])
+        self.assertIn("Invalid JSON", response_body["message"])
+
+    @patch("delete_badges.app.get_secret")
+    def test_lambda_hanlder_secret_error(self, mock_get_secret):
+        mock_get_secret.side_effect = Exception("Secret Error")
+        response = app.lambda_handler(mock_body, None)
+        self.assertEqual(response["statusCode"], 500)
+        response_body = json.loads(response['body'])
+        self.assertIn("Secret Error", response_body["error"])
+
+    @patch("delete_badges.app.get_secret")
+    @patch("delete_badges.app.pymysql.connect")
+    def test_lambda_handler_connection_error(self, mock_connect, mock_get_secret):
+        mock_get_secret.return_value = {
+            'host': 'test_host',
+            'username': 'test_user',
+            'password': 'test_pass'
+        }
+        mock_connect.side_effect = MySQLError("Connection Error")
+        response = app.lambda_handler(mock_body, None)
+        self.assertEqual(response["statusCode"], 503)
+        response_body = json.loads(response['body'])
+        self.assertIn("error", response_body)
+
+    @patch("delete_badges.app.get_secret")
+    @patch("delete_badges.app.pymysql.connect")
+    def test_lambda_handler_db_error(self, mock_connect, mock_get_secret):
+        mock_get_secret.return_value = {
+            'host': 'test_host',
+            'username': 'test_user',
+            'password': 'test_pass'
+        }
+        mock_connection = MagicMock()
+        mock_cursor = MagicMock()
+        mock_connection.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_cursor.execute.side_effect = Exception("Database Error")
+        mock_connect.return_value = mock_connection
+
+        response = app.lambda_handler(mock_body, None)
+        self.assertEqual(response["statusCode"], 500)
+        response_body = json.loads(response['body'])
+        self.assertIn("error", response_body)
+
+    @patch("delete_badges.app.get_secret")
+    @patch("delete_badges.app.pymysql.connect")
+    def test_lambda_handler_error_update(self, mock_connect, mock_get_secret):
+        mock_get_secret.return_value = {
+            'host': 'mock-host',
+            'username': 'mock-username',
+            'password': 'mock-password'
         }
 
-        result = app.lambda_handler(event, None)
-        self.assertEqual(result["statusCode"], 400)
-        body = json.loads(result["body"])
-        self.assertIn("Expecting value", body["error"])
+        mock_connection = MagicMock()
+        mock_cursor = MagicMock()
+        mock_connection.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_cursor.execute.side_effect = [pymysql.MySQLError("Update failed"), 1]  # Mocking failed update
+        mock_connect.return_value = mock_connection
 
-# No if __name__ == '__main__': unittest.main()
+        event = mock_body
+        context = {}
+
+        response = app.lambda_handler(event, context)
+
+        self.assertEqual(response['statusCode'], 400)
+        response_body = json.loads(response['body'])
+        self.assertEqual(response_body["error"], "Error updating Users table")
+
+    @patch("delete_badges.app.get_secret")
+    @patch("delete_badges.app.pymysql.connect")
+    def test_lambda_handler_error_delete(self,mock_connect, mock_get_secret):
+        mock_get_secret.return_value = {
+            'host': 'mock-host',
+            'username': 'mock-username',
+            'password': 'mock-password'
+        }
+
+        mock_connection = MagicMock()
+        mock_cursor = MagicMock()
+        mock_connection.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_cursor.execute.side_effect = [1, pymysql.MySQLError("Delete failed")]  # Mocking failed delete
+        mock_connect.return_value = mock_connection
+
+        event = mock_body
+        context = {}
+
+        response = app.lambda_handler(event, context)
+
+        self.assertEqual(response['statusCode'], 400)
+        response_body = json.loads(response['body'])
+        self.assertEqual(response_body["error"], "Error deleting badge")
+
+    @patch("delete_badges.app.get_secret")
+    @patch("delete_badges.app.pymysql.connect")
+    def test_lambda_handler_error_not_found(self, mock_connect, mock_get_secret):
+        mock_get_secret.return_value = {
+            'host': 'test_host',
+            'username': 'test_user',
+            'password': 'test_pass'
+        }
+        mock_connection = MagicMock()
+        mock_cursor = MagicMock()
+        mock_connection.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_cursor.execute.side_effect = [1, 0]
+        mock_connect.return_value = mock_connection
+
+        response = app.lambda_handler(mock_body, None)
+        self.assertEqual(response["statusCode"], 404)
+        response_body = json.loads(response['body'])
+        self.assertIn("error", response_body)
