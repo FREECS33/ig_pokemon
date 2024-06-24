@@ -145,4 +145,4 @@ class TestPostBadges(unittest.TestCase):
         response_body = json.loads(response['body'])
         self.assertIn("Insert failed", response_body["message"])
 
-    
+
