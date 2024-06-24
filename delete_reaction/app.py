@@ -1,7 +1,8 @@
+# DELETE FROM Interactions WHERE id_interaction = %s
 import json
 import pymysql
 import boto3
-from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
+from botocore.exceptions import ClientError
 
 
 def get_secret():
@@ -21,59 +22,35 @@ def get_secret():
         secret = get_secret_value_response['SecretString']
         return json.loads(secret)
     except ClientError as e:
-        error_code = e.response['Error']['Code']
-        if error_code == 'ResourceNotFoundException':
-            response = {
-                "statusCode": 404,
-                "body": f"Secret {secret_name} not found"
-            }
-        elif error_code == 'InvalidRequestException':
-            response = {
-                "statusCode": 400,
-                "body": f"Invalid request for secret {secret_name}"
-            }
-        elif error_code == 'InvalidParameterException':
-            response = {
-                "statusCode": 400,
-                "body": f"Invalid parameter for secret {secret_name}"
-            }
-        elif error_code == 'AccessDeniedException':
-            response = {
-                "statusCode": 403,
-                "body": f"Access denied for secret {secret_name}"
-            }
-        else:
-            response = {
-                "statusCode": 500,
-                "body": f"Error retrieving secret {secret_name}: {str(e)}"
-            }
-        raise Exception(response)
-    except NoCredentialsError:
-        raise Exception({
-            "statusCode": 500,
-            "body": "AWS credentials not found"
-        })
-    except PartialCredentialsError:
-        raise Exception({
-            "statusCode": 500,
-            "body": "Incomplete AWS credentials"
-        })
-    except Exception as e:
-        raise Exception({
-            "statusCode": 500,
-            "body": f"Unknown error: {str(e)}"
-        })
+        raise Exception(f"Error retrieving secret: {e.response['Error']['Message']}")
 
 
 def lambda_handler(event, context):
     try:
+        body = json.loads(event['body'])
+        if 'id_interaction' not in body:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": "Missing id_interaction in request body"})
+            }
+        id_interaction = body['id_interaction']
+    except (json.JSONDecodeError, ValueError) as e:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": str(e)})
+        }
+    try:
         secrets = get_secret()
-
-        host = secrets['host']
-        name = secrets['username']
-        password = secrets['password']
-        db_name = "SIONPO"
-
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)})
+        }
+    host = secrets['host']
+    name = secrets['username']
+    password = secrets['password']
+    db_name = "SIONPO"
+    try:
         connection = pymysql.connect(
             host=host,
             user=name,
@@ -81,76 +58,42 @@ def lambda_handler(event, context):
             db=db_name,
             connect_timeout=5
         )
-
-        try:
-            body = json.loads(event.get("body", "{}"))
-            id_interaction = body.get("id_interaction")
-
-            if not id_interaction:
+    except pymysql.OperationalError as e:
+        return {
+            "statusCode": 503,
+            "body": json.dumps({"error": str(e)})
+        }
+    try:
+        with connection.cursor() as cursor:
+            try:
+                delete_query = "DELETE FROM Interactions WHERE id_interaction = %s"
+                rows_affected_interaction = cursor.execute(delete_query, (id_interaction,))
+                connection.commit()
+            except pymysql.MySQLError as e:
+                connection.rollback()
                 return {
                     "statusCode": 400,
-                    "body": json.dumps({"message": "Missing id_interaction in request body"})
+                    "body": json.dumps({"error": "Error deleting interaction table"})
                 }
-
-            with connection.cursor() as cursor:
-                sql = "DELETE FROM Interactions WHERE id_interaction = %s"
-                cursor.execute(sql, (id_interaction,))
-                connection.commit()
-
-                if cursor.rowcount == 0:
-                    response = {
-                        "statusCode": 404,
-                        "body": json.dumps({"message": "Interaction not found"})
-                    }
-                else:
-                    response = {
-                        "statusCode": 200,
-                        "body": json.dumps({"message": "Interaction deleted successfully"})
-                    }
-        except pymysql.MySQLError as error:
-            error_code = error.args[0]
-            if error_code == 1045:
-                response = {
-                    "statusCode": 401,
-                    "body": json.dumps({"message": "Authentication error: Incorrect username or password"})
-                }
-            elif error_code == 1049:
-                response = {
+            if(rows_affected_interaction == 0):
+                return {
                     "statusCode": 404,
-                    "body": json.dumps({"message": "Database not found"})
+                    "body": json.dumps({"error": "Interaction not found"})
                 }
-            elif error_code == 2003:
-                response = {
-                    "statusCode": 503,
-                    "body": json.dumps({"message": "Cannot connect to database server"})
-                }
-            elif error_code == 1062:
-                response = {
-                    "statusCode": 409,
-                    "body": json.dumps({"message": "Duplicate entry error"})
-                }
-            elif error_code == 1406:
-                response = {
-                    "statusCode": 413,
-                    "body": json.dumps({"message": "Data too long for column"})
-                }
-            else:
-                response = {
-                    "statusCode": 500,
-                    "body": json.dumps({"message": f"Database error: {str(error)}"})
-                }
-        finally:
-            connection.close()
-
-        return response
+            response = {
+                "statusCode": 200,
+                "body": json.dumps({"message": "Interaction deleted successfully"})
+            }
+            return response
+    except pymysql.MySQLError as e:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Database error"})
+        }
 
     except Exception as e:
-        if isinstance(e.args[0], dict) and 'statusCode' in e.args[0]:
-            response = e.args[0]
-        else:
-            response = {
-                "statusCode": 500,
-                "body": json.dumps({"message": f"Error: {str(e)}"})
-            }
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "An unexpected error occurred"})
+        }
 
-        return response
