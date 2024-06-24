@@ -98,30 +98,7 @@ def lambda_handler(event, context):
                     "statusCode": 200,
                     "body": json.dumps(result, default=str)
                 }
-            except pymysql.MySQLError as error:
-                error_code = error.args[0]
-                if error_code == 1045:
-                    response = {
-                        "statusCode": 401,
-                        "body": "Authentication error: Incorrect username or password"
-                    }
-                elif error_code == 1049:
-                    response = {
-                        "statusCode": 404,
-                        "body": "Database not found"
-                    }
-                elif error_code == 2003:
-                    response = {
-                        "statusCode": 503,
-                        "body": "Cannot connect to database server"
-                    }
-                else:
-                    response = {
-                        "statusCode": 500,
-                        "body": f"Database error: {str(error)}"
-                    }
             except Exception as e:
-                print(f"Exception during query execution: {str(e)}")
                 response = {
                     "statusCode": 500,
                     "body": f"Query execution error: {str(e)}"
@@ -134,6 +111,16 @@ def lambda_handler(event, context):
                 response = {
                     "statusCode": 503,
                     "body": "Cannot connect to database server"
+                }
+            elif error_code == 1045:
+                response = {
+                    "statusCode": 401,
+                    "body": "Authentication error: Incorrect username or password"
+                }
+            elif error_code == 1049:
+                response = {
+                    "statusCode": 404,
+                    "body": "Database not found"
                 }
             else:
                 response = {

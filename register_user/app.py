@@ -25,31 +25,30 @@ def get_secret():
     except ClientError as e:
         error_code = e.response['Error']['Code']
         if error_code == 'ResourceNotFoundException':
-            response = {
+            raise Exception({
                 "statusCode": 404,
                 "body": f"Secret {secret_name} not found"
-            }
+            })
         elif error_code == 'InvalidRequestException':
-            response = {
+            raise Exception({
                 "statusCode": 400,
                 "body": f"Invalid request for secret {secret_name}"
-            }
+            })
         elif error_code == 'InvalidParameterException':
-            response = {
+            raise Exception({
                 "statusCode": 400,
                 "body": f"Invalid parameter for secret {secret_name}"
-            }
+            })
         elif error_code == 'AccessDeniedException':
-            response = {
+            raise Exception({
                 "statusCode": 403,
                 "body": f"Access denied for secret {secret_name}"
-            }
+            })
         else:
-            response = {
+            raise Exception({
                 "statusCode": 500,
                 "body": f"Error retrieving secret {secret_name}: {str(e)}"
-            }
-        raise Exception(response)
+            })
     except NoCredentialsError:
         raise Exception({
             "statusCode": 401,

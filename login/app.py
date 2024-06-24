@@ -24,7 +24,12 @@ def get_secret():
         return json.loads(secret)
     except ClientError as e:
         error_code = e.response['Error']['Code']
-        if error_code == 'InvalidRequestException':
+        if error_code == 'ResourceNotFoundException':
+            raise Exception({
+                "statusCode": 404,
+                "body": f"Secret {secret_name} not found"
+            })
+        elif error_code == 'InvalidRequestException':
             raise Exception({
                 "statusCode": 400,
                 "body": f"Invalid request for secret {secret_name}"
@@ -97,6 +102,11 @@ def lambda_handler(event, context):
             'statusCode': 200,
             'body': json.dumps(
                 {'message': 'User login successful', 'authentication_result': response['AuthenticationResult']})
+        }
+    except KeyError as e:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({'error': f'Missing parameter: {str(e)}'})
         }
     except ClientError as e:
         error_code = e.response['Error']['Code']
