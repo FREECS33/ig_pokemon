@@ -1,7 +1,7 @@
 import json
 import pymysql
 import boto3
-from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
+from botocore.exceptions import ClientError
 
 
 def get_secret():
@@ -21,58 +21,36 @@ def get_secret():
         secret = get_secret_value_response['SecretString']
         return json.loads(secret)
     except ClientError as e:
-        error_code = e.response['Error']['Code']
-        if error_code == 'ResourceNotFoundException':
-            raise Exception({
-                "statusCode": 404,
-                "body": json.dumps({"message": f"Secret {secret_name} not found"})
-            })
-        elif error_code == 'InvalidRequestException':
-            raise Exception({
-                "statusCode": 400,
-                "body": json.dumps({"message": f"Invalid request for secret {secret_name}"})
-            })
-        elif error_code == 'InvalidParameterException':
-            raise Exception({
-                "statusCode": 400,
-                "body": json.dumps({"message": f"Invalid parameter for secret {secret_name}"})
-            })
-        elif error_code == 'AccessDeniedException':
-            raise Exception({
-                "statusCode": 403,
-                "body": json.dumps({"message": f"Access denied for secret {secret_name}"})
-            })
-        else:
-            raise Exception({
-                "statusCode": 500,
-                "body": json.dumps({"message": f"Error retrieving secret {secret_name}: {str(e)}"})
-            })
-    except NoCredentialsError:
-        raise Exception({
-            "statusCode": 401,
-            "body": json.dumps({"message": "AWS credentials not found"})
-        })
-    except PartialCredentialsError:
-        raise Exception({
-            "statusCode": 401,
-            "body": json.dumps({"message": "Incomplete AWS credentials"})
-        })
-    except Exception as e:
-        raise Exception({
-            "statusCode": 500,
-            "body": json.dumps({"message": f"Unknown error: {str(e)}"})
-        })
+        raise Exception(f"Error retrieving secret: {e.response['Error']['Message']}")
 
 
 def lambda_handler(event, context):
     try:
+        body = json.loads(event['body'])
+        if "id_pokemon" not in body:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "Missing id_pokemon in body"})
+            }
+        id_pokemon = body['id_pokemon']
+    except (json.JSONDecodeError, ValueError) as e:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": str(e)})
+        }
+    try:
         secrets = get_secret()
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"message": str(e)})
+        }
 
-        host = secrets['host']
-        name = secrets['username']
-        password = secrets['password']
-        db_name = "SIONPO"
-
+    host = secrets['host']
+    name = secrets['username']
+    password = secrets['password']
+    db_name = "SIONPO"
+    try:
         connection = pymysql.connect(
             host=host,
             user=name,
@@ -80,46 +58,47 @@ def lambda_handler(event, context):
             db=db_name,
             connect_timeout=5
         )
+    except pymysql.OperationalError as e:
+        return {
+            "statusCode": 503,
+            "body": json.dumps({"message": str(e)})
+        }
 
-        try:
-            with connection.cursor() as cursor:
-                id_pokemon = event.get('queryStringParameters', {}).get('id_pokemon')
-                if not id_pokemon:
-                    response = {
-                        "statusCode": 400,
-                        "body": json.dumps({"message": "Missing id_pokemon in query parameters"})
-                    }
-                    return response
-
-                cursor.execute("DELETE FROM Pokemon WHERE id_pokemon = %s", (id_pokemon,))
+    try:
+        with connection.cursor() as cursor:
+            try:
+                delete_publication = "DELETE FROM Pokemon WHERE id_pokemon = %s"
+                rows_affected_publications = cursor.execute(delete_publication, (id_pokemon,))
                 connection.commit()
+            except pymysql.MySQLError as e:
+                connection.rollback()
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps({"message": str(e)})
+                }
+            if(rows_affected_publications == 0):
+                return {
+                    "statusCode": 404,
+                    "body": json.dumps({"message": "Pokemon not found"})
+                }
+            response = {
+                "statusCode": 200,
+                "body": json.dumps({"message": "Pokemon deleted successfully"})
+            }
+            return response
 
-                if cursor.rowcount == 0:
-                    response = {
-                        "statusCode": 404,
-                        "body": json.dumps({"message": "Pokemon not found"})
-                    }
-                else:
-                    response = {
-                        "statusCode": 200,
-                        "body": json.dumps({"message": "Pokemon deleted successfully"})
-                    }
-                return response
-        finally:
-            connection.close()
+    except pymysql.MySQLError as e:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Database error"})
+        }
 
-    except NoCredentialsError:
-        return {
-            "statusCode": 401,
-            "body": json.dumps({"message": "AWS credentials not found"})
-        }
-    except PartialCredentialsError:
-        return {
-            "statusCode": 401,
-            "body": json.dumps({"message": "Incomplete AWS credentials"})
-        }
     except Exception as e:
         return {
             "statusCode": 500,
-            "body": json.dumps({"message": str(e)})
+            "body": json.dumps({"error": "An unexpected error occurred"})
         }
+    finally:
+        connection.close()
+
+

@@ -75,7 +75,7 @@ def lambda_handler(event, context):
                     "statusCode": 400,
                     "body": json.dumps({"error": "Error deleting interaction table"})
                 }
-            if(rows_affected_interaction == 0):
+            if (rows_affected_interaction == 0):
                 return {
                     "statusCode": 404,
                     "body": json.dumps({"error": "Interaction not found"})
@@ -96,4 +96,3 @@ def lambda_handler(event, context):
             "statusCode": 500,
             "body": json.dumps({"error": "An unexpected error occurred"})
         }
-
