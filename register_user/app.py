@@ -86,6 +86,8 @@ def lambda_handler(event, context):
         CLIENT_ID = secrets.get('CLIENT_ID')
         CLIENT_SECRET = secrets.get('CLIENT_SECRET')
 
+        role = 'user'
+
         client = boto3.client('cognito-idp')
 
         secret_hash = get_secret_hash(username, CLIENT_ID, CLIENT_SECRET)
@@ -106,6 +108,13 @@ def lambda_handler(event, context):
                 }
             ],
         )
+
+        client.admin_add_user_to_group(
+            UserPoolId=USER_POOL_ID,
+            Username=username,
+            GroupName=role
+        )
+        
         return {
             'statusCode': 200,
             'body': json.dumps({'message': 'User registration successful', 'user_sub': response['UserSub']})
