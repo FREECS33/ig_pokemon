@@ -1,10 +1,8 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import json
-
 import pymysql
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
-
 from get_data_all_pokemon.app import get_secret, lambda_handler
 
 
