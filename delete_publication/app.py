@@ -2,7 +2,8 @@ import json
 import pymysql
 import boto3
 from botocore.exceptions import ClientError
-
+import jwt
+from jwt import PyJWKClient
 
 def get_secret():
     secret_name = 'sionpoKeys'
@@ -24,7 +25,45 @@ def get_secret():
         raise Exception(f"Error retrieving secret: {e.response['Error']['Message']}")
 
 
+def verify_token(token):
+    region = "us-east-2"
+    userpool_id = "us-east-2_NDXZOG7DQ"  # Reemplaza con tu User Pool ID
+    app_client_id = "5s5c1ofpkq30gkbt61q1hdicfd"  # Reemplaza con tu App Client ID
+
+    jwks_url = f'https://cognito-idp.{region}.amazonaws.com/{userpool_id}/.well-known/jwks.json'
+    jwks_client = PyJWKClient(jwks_url)
+
+    try:
+        signing_key = jwks_client.get_signing_key_from_jwt(token)
+        decoded_token = jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=["RS256"],
+            audience=app_client_id
+        )
+        return decoded_token
+    except jwt.ExpiredSignatureError:
+        raise Exception("Token has expired")
+    except jwt.InvalidTokenError:
+        raise Exception("Invalid token")
+
+
 def lambda_handler(event, context):
+    # Verificar token de autorización
+    try:
+        token = event['headers']['Authorization'].split(' ')[1]
+        decoded_token = verify_token(token)
+    except KeyError:
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"message": "Missing Authorization Header"})
+        }
+    except Exception as e:
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"message": str(e)})
+        }
+
     try:
         body = json.loads(event['body'])
         if "id_pokemon" not in body:
@@ -38,6 +77,7 @@ def lambda_handler(event, context):
             "statusCode": 400,
             "body": json.dumps({"message": str(e)})
         }
+
     try:
         secrets = get_secret()
     except Exception as e:
@@ -76,7 +116,7 @@ def lambda_handler(event, context):
                     "statusCode": 400,
                     "body": json.dumps({"message": str(e)})
                 }
-            if(rows_affected_publications == 0):
+            if rows_affected_publications == 0:
                 return {
                     "statusCode": 404,
                     "body": json.dumps({"message": "Pokemon not found"})
@@ -100,5 +140,3 @@ def lambda_handler(event, context):
         }
     finally:
         connection.close()
-
-
