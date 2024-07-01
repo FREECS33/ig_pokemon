@@ -98,10 +98,24 @@ def lambda_handler(event, context):
                 'SECRET_HASH': secret_hash
             }
         )
+
+        role = None
+        user_groups = client.admin_list_groups_for_user(
+            Username=username,
+            UserPoolId=secrets['USER_POOL_ID']
+        )
+        if user_groups['Groups']:
+            role = user_groups['Groups'][0]['GroupName']
+
         return {
             'statusCode': 200,
-            'body': json.dumps(
-                {'message': 'User login successful', 'authentication_result': response['AuthenticationResult']})
+            'body': json.dumps({
+                'message': 'User login successful',
+                'id_token': response['AuthenticationResult']['IdToken'],
+                'access_token': response['AuthenticationResult']['AccessToken'],
+                'refresh_token': response['AuthenticationResult']['RefreshToken'],
+                'role': role
+            })
         }
     except KeyError as e:
         return {
