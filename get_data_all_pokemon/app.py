@@ -69,6 +69,14 @@ def lambda_handler(event, context):
     try:
         secrets = get_secret()
 
+        body = json.loads(event['body'])
+
+        if body.get('role') != 'user' or body.get('role') != 'mod':
+            raise Exception({
+                "statusCode": 401,
+                "body": "Access denied to this resource"
+            })
+
         host = secrets.get('host')
         name = secrets.get('username')
         password = secrets.get('password')
