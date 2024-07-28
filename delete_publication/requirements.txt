@@ -1,4 +1,3 @@
 requests
 pymysql
 boto3
-jwt

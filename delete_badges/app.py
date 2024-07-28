@@ -1,7 +1,7 @@
 import json
 import pymysql
 import boto3
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
 
 def get_secret():
@@ -21,7 +21,48 @@ def get_secret():
         secret = get_secret_value_response['SecretString']
         return json.loads(secret)
     except ClientError as e:
-        raise Exception(f"Error retrieving secret: {e.response['Error']['Message']}")
+        error_code = e.response['Error']['Code']
+        if error_code == 'ResourceNotFoundException':
+            response = {
+                "statusCode": 404,
+                "body": f"Secret {secret_name} not found"
+            }
+        elif error_code == 'InvalidRequestException':
+            response = {
+                "statusCode": 400,
+                "body": f"Invalid request for secret {secret_name}"
+            }
+        elif error_code == 'InvalidParameterException':
+            response = {
+                "statusCode": 400,
+                "body": f"Invalid parameter for secret {secret_name}"
+            }
+        elif error_code == 'AccessDeniedException':
+            response = {
+                "statusCode": 403,
+                "body": f"Access denied for secret {secret_name}"
+            }
+        else:
+            response = {
+                "statusCode": 500,
+                "body": f"Error retrieving secret {secret_name}: {str(e)}"
+            }
+        raise Exception(response)
+    except NoCredentialsError:
+        raise Exception({
+            "statusCode": 401,
+            "body": "AWS credentials not found"
+        })
+    except PartialCredentialsError:
+        raise Exception({
+            "statusCode": 401,
+            "body": "Incomplete AWS credentials"
+        })
+    except Exception as e:
+        raise Exception({
+            "statusCode": 500,
+            "body": f"Unknown error: {str(e)}"
+        })
 
 
 def lambda_handler(event, context):
@@ -105,7 +146,6 @@ def lambda_handler(event, context):
             "statusCode": 500,
             "body": json.dumps({"error": "Database error"})
         }
-
     except Exception as e:
         return {
             "statusCode": 500,

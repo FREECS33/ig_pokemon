@@ -38,10 +38,14 @@ class TestLambdaHandler(unittest.TestCase):
         mock_boto_client.return_value = mock_cognito_client
         mock_cognito_client.initiate_auth.return_value = {
             'AuthenticationResult': {
+                'IdToken': 'mock_id_token',
                 'AccessToken': 'mock_access_token',
-                'ExpiresIn': 3600,
-                'TokenType': 'Bearer'
+                'RefreshToken': 'mock_refresh_token'
             }
+        }
+
+        mock_cognito_client.admin_list_groups_for_user.return_value = {
+            'Groups': [{'GroupName': 'mock_group'}]
         }
 
         event = {
@@ -53,10 +57,14 @@ class TestLambdaHandler(unittest.TestCase):
         context = {}
 
         response = lambda_handler(event, context)
+
         self.assertEqual(response['statusCode'], 200)
         body = json.loads(response['body'])
         self.assertEqual(body['message'], 'User login successful')
-        self.assertIn('authentication_result', body)
+        self.assertEqual(body['id_token'], 'mock_id_token')
+        self.assertEqual(body['access_token'], 'mock_access_token')
+        self.assertEqual(body['refresh_token'], 'mock_refresh_token')
+        self.assertEqual(body['role'], 'mock_group')
 
     @patch('login.app.get_secret')
     @patch('boto3.client')
