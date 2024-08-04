@@ -81,7 +81,7 @@ def lambda_handler(event, context):
                 "body": "One or more secrets are missing"
             })
 
-        token = event['headers']['Authorization'].split('')[1]
+        token = event['headers']['Authorization'].split(' ')[1]
         decoded_token = jwt.decode(token, options={"verify_signature": True})
 
         user_groups = decoded_token.get('cognito:groups', [])
