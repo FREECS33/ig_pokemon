@@ -1,6 +1,7 @@
 import json
 import pymysql
 import boto3
+import jwt
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
 
@@ -66,6 +67,17 @@ def get_secret():
 
 
 def lambda_handler(event, context):
+    token = event['headers']['Authorization'].split(' ')[1]
+    decoded_token = jwt.decode(token, options={"verify_signature": False})
+
+    user_groups = decoded_token.get('cognito:groups', [])
+
+    if "user" not in user_groups and "mod" not in user_groups:
+        raise Exception({
+            "statusCode": 403,
+            "body": json.dumps("Access Denied: Insufficient permits")
+        })
+
     try:
         body = json.loads(event['body'])
         if "id_pokemon" not in body:
