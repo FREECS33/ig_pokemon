@@ -82,7 +82,7 @@ def lambda_handler(event, context):
             })
 
         token = event['headers']['Authorization'].split(' ')[1]
-        decoded_token = jwt.decode(token, options={"verify_signature": True}, algorithms=["RS256"])
+        decoded_token = jwt.decode(token, options={"verify_signature": False})
 
         user_groups = decoded_token.get('cognito:groups', [])
 
