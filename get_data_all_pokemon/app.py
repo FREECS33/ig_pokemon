@@ -1,6 +1,7 @@
 import json
 import pymysql
 import boto3
+import jwt
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
 
@@ -78,6 +79,17 @@ def lambda_handler(event, context):
             raise Exception({
                 "statusCode": 500,
                 "body": "One or more secrets are missing"
+            })
+
+        token = event['headers']['Authorization'].split('')[1]
+        decoded_token = jwt.decode(token, options={"verify_signature": True})
+
+        user_groups = decoded_token.get('cognito:groups', [])
+
+        if "user" not in user_groups and "mod" not in user_groups:
+            raise Exception({
+                "statusCode": 403,
+                "body": json.dumps("Access Denied: Insufficient role")
             })
 
         try:
