@@ -67,6 +67,17 @@ def get_secret():
 
 
 def lambda_handler(event, context):
+    token = event['headers']['Authorization'].split(' ')[1]
+    decoded_token = jwt.decode(token, options={"verify_signature": False})
+
+    user_groups = decoded_token.get('cognito:groups', [])
+
+    if "user" not in user_groups and "mod" not in user_groups:
+        raise Exception({
+            "statusCode": 403,
+            "body": json.dumps("Access Denied: Insufficient permits")
+        })
+
     try:
         secrets = get_secret()
 
@@ -79,17 +90,6 @@ def lambda_handler(event, context):
             raise Exception({
                 "statusCode": 500,
                 "body": "One or more secrets are missing"
-            })
-
-        token = event['headers']['Authorization'].split(' ')[1]
-        decoded_token = jwt.decode(token, options={"verify_signature": False})
-
-        user_groups = decoded_token.get('cognito:groups', [])
-
-        if "user" not in user_groups and "mod" not in user_groups:
-            raise Exception({
-                "statusCode": 403,
-                "body": json.dumps("Access Denied: Insufficient role")
             })
 
         try:
