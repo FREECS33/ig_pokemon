@@ -144,6 +144,7 @@ def lambda_handler(event, context):
                     "statusCode": 500,
                     "body": f"Database connection error: {str(error)}"
                 }
+                
     except Exception as e:
         if isinstance(e.args[0], dict) and 'statusCode' in e.args[0]:
             response = e.args[0]
