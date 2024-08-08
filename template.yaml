@@ -244,6 +244,23 @@ Resources:
             Path: /login
             Method: post
 
+  GetAllUsersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_all_users/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        GetAllUsers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ServerlessRestApi
+            Path: /get_all_users
+            Method: get
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
@@ -292,6 +309,14 @@ Outputs:
   LoginApi:
     Description: "API Gateway endpoint URL for Login function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login/"
+
+  GetAllUsersApi:
+    Description: "API Gateway endpoint URL for GetAllUsers function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_all_users/"
+
+  GetAllUsersFunction:
+    Description: "Get All Users Lambda Function ARN"
+    Value: !GetAtt GetAllUsersFunction.Arn
 
   GetPokemonFunction:
     Description: "Get Pokemon Lambda Function ARN"
