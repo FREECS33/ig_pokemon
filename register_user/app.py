@@ -4,10 +4,10 @@ from botocore.exceptions import ClientError, NoCredentialsError, PartialCredenti
 import hmac
 import hashlib
 import base64
+import pymysql
 
 
-def get_secret():
-    secret_name = 'cognitoKeys'
+def get_secret(secret_name):
     region_name = 'us-east-2'
 
     session = boto3.session.Session()
@@ -80,11 +80,12 @@ def lambda_handler(event, context):
         email = body['email']
         picture = body['picture']
 
-        secrets = get_secret()
+        secrets_cognito = get_secret('cognitoKeys')
+        secrets_db = get_secret('sionpoKeys')
 
-        USER_POOL_ID = secrets.get('USER_POOL_ID')
-        CLIENT_ID = secrets.get('CLIENT_ID')
-        CLIENT_SECRET = secrets.get('CLIENT_SECRET')
+        USER_POOL_ID = secrets_cognito.get('USER_POOL_ID')
+        CLIENT_ID = secrets_cognito.get('CLIENT_ID')
+        CLIENT_SECRET = secrets_cognito.get('CLIENT_SECRET')
 
         role = 'user'
 
@@ -114,7 +115,64 @@ def lambda_handler(event, context):
             Username=username,
             GroupName=role
         )
-        
+
+        host = secrets_db.get('host')
+        name = secrets_db.get('username')
+        password_db = secrets_db.get('password')
+        db_name = 'SIONPO'
+
+        if not all([host, name, password_db]):
+            raise Exception({
+                "statusCode": 500,
+                "body": "One or more secrets are missing"
+            })
+
+        try:
+            connection = pymysql.connect(
+                host=host,
+                user=name,
+                password=password_db,
+                db=db_name,
+                connect_timeout=5
+            )
+
+            try:
+                with connection.cursor() as cursor:
+                    query = """
+                        INSERT INTO Users (username, email, password, photo)
+                        VALUES (%s, %s, %s, %s)
+                    """
+                    cursor.execute(query, (username, email, password, picture))
+                    connection.commit()
+            except Exception as e:
+                return {
+                    "statusCode": 500,
+                    "body": f"Query execution error: {str(e)}"
+                }
+            finally:
+                connection.close()
+        except pymysql.MySQLError as error:
+            error_code = error.args[0]
+            if error_code == 2003:
+                response = {
+                    "statusCode": 503,
+                    "body": "Cannot connect to database server"
+                }
+            elif error_code == 1045:
+                response = {
+                    "statusCode": 401,
+                    "body": "Authentication error: Incorrect username or password"
+                }
+            elif error_code == 1049:
+                response = {
+                    "statusCode": 404,
+                    "body": "Database not found"
+                }
+            else:
+                response = {
+                    "statusCode": 500,
+                    "body": f"Database connection error: {str(error)}"
+                }
         return {
             'statusCode': 200,
             'body': json.dumps({'message': 'User registration successful', 'user_sub': response['UserSub']})

@@ -10,6 +10,15 @@ Globals:
     Timeout: 5
 
 Resources:
+  MyApiGateWay:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -43,8 +52,10 @@ Resources:
         GetPokemon:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /get_pokemon
             Method: get
+
 
   GetOnePokemonFunction:
     Type: AWS::Serverless::Function
@@ -59,6 +70,7 @@ Resources:
         GetOnePokemon:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /get_one_pokemon
             Method: get
 
@@ -75,6 +87,7 @@ Resources:
         AddPokemon:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /add_pokemon
             Method: post
 
@@ -91,6 +104,7 @@ Resources:
         AddPokemon:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /add_badges
             Method: post
 
@@ -107,6 +121,7 @@ Resources:
         AddPokemon:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /add_reaction
             Method: post
 
@@ -123,6 +138,7 @@ Resources:
         UpdatePokemon:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /update_pokemon
             Method: put
 
@@ -139,6 +155,7 @@ Resources:
         DeletePokemon:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /delete_pokemon
             Method: delete
 
@@ -155,24 +172,9 @@ Resources:
         DeletePokemon:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /delete_badges
             Method: delete
-
-  RegisterModeratorFunction:
-      Type: AWS::Serverless::Function
-      Properties:
-        CodeUri: register_moderator/
-        Handler: app.lambda_handler
-        Runtime: python3.12
-        Role: !GetAtt LambdaExecutionRole.Arn
-        Architectures:
-          - x86_64
-        Events:
-          RegisterModerator:
-            Type: Api
-            Properties:
-              Path: /new_moderator
-              Method: post
 
   DeleteReactionFunction:
     Type: AWS::Serverless::Function
@@ -187,6 +189,7 @@ Resources:
         DeleteReaction:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /delete_reaction
             Method: delete
 
@@ -203,6 +206,7 @@ Resources:
         DeleteReaction:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /register_user
             Method: post
 
@@ -219,6 +223,7 @@ Resources:
         ConfirmRegister:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /confirm_register
             Method: post
 
@@ -235,6 +240,7 @@ Resources:
         Login:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApiGateWay
             Path: /login
             Method: post
 
@@ -270,10 +276,6 @@ Outputs:
   DeleteBadgesApi:
     Description: "API Gateway endpoint URL for Badge function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_badges/"
-    
-  RegisterModeratorApi:
-    Description: "API Gateway endpoint URL for RegisterModerator function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/new_moderator/"
 
   DeleteReactionApi:
     Description: "API Gateway endpoint URL for DeleteReaction function"
@@ -322,10 +324,6 @@ Outputs:
   DeleteBadgeFunction:
     Description: "Delete badge Lambda Function ARN"
     Value: !GetAtt DeleteBadgeFunction.Arn
-    
-  RegisterModeratorFunction:
-    Description: "Register Moderator Lambda Function ARN"
-    Value: !GetAtt RegisterModeratorFunction.Arn
 
   DeleteReactionFunction:
     Description: "Delete Reaction Lambda Function ARN"

@@ -32,7 +32,6 @@ jobs:
           pip install -r delete_publication/requirements.txt
           pip install -r post_badges/requirements.txt
           pip install -r post_reaction/requirements.txt
-          pip install -r register_moderator/requirements.txt
           pip install -r register_user/requirements.txt
           pip install -r confirm_register/requirements.txt
           pip install -r delete_reaction/requirements.txt
@@ -71,7 +70,6 @@ jobs:
           pip install -r delete_publication/requirements.txt
           pip install -r post_badges/requirements.txt
           pip install -r post_reaction/requirements.txt
-          pip install -r register_moderator/requirements.txt
           pip install -r register_user/requirements.txt
           pip install -r confirm_register/requirements.txt
           pip install -r delete_reaction/requirements.txt
