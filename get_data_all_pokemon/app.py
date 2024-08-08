@@ -105,7 +105,8 @@ def lambda_handler(event, context):
                 with connection.cursor() as cursor:
                     cursor.execute("SELECT * FROM Pokemon")
                     result = cursor.fetchall()
-
+                    columns = [column[0] for column in cursor.description]
+                    result = [dict(zip(columns, row)) for row in result]
                 response = {
                     "statusCode": 200,
                     "body": json.dumps(result, default=str)
