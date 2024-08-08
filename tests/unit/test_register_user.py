@@ -18,7 +18,7 @@ class TestLambdaHandler(unittest.TestCase):
             })
         }
 
-        secret = get_secret()
+        secret = get_secret("cognitoKeys")
 
         self.assertEqual(secret['USER_POOL_ID'], 'mock_polId')
         self.assertEqual(secret['CLIENT_ID'], 'mock_client_id')
@@ -26,16 +26,33 @@ class TestLambdaHandler(unittest.TestCase):
 
     @patch('register_user.app.get_secret')
     @patch('boto3.client')
-    def test_lambda_handler_success(self, mock_boto_client, mock_get_secret):
-        mock_get_secret.return_value = {
-            'USER_POOL_ID': 'mock_polId',
-            'CLIENT_ID': 'mock_client_id',
-            'CLIENT_SECRET': 'mock_client_secret'
-        }
+    @patch('register_user.app.pymysql.connect')
+    def test_lambda_handler_success(self, mock_connect, mock_boto_client, mock_get_secret):
+        def mock_get_secret_effect(secret_name):
+            if secret_name == 'cognitoKeys':
+                return {
+                    'USER_POOL_ID': 'mock_polId',
+                    'CLIENT_ID': 'mock_client_id',
+                    'CLIENT_SECRET': 'mock_client_secret'
+                }
+            elif secret_name == 'sionpoKeys':
+                return {
+                    'host': 'mock_host',
+                    'username': 'mock_name',
+                    'password': 'mock_password'
+                }
+
+        mock_get_secret.side_effect = mock_get_secret_effect
 
         mock_cognito_client = MagicMock()
         mock_boto_client.return_value = mock_cognito_client
         mock_cognito_client.sign_up.return_value = {'UserSub': '1234'}
+
+        mock_connection = MagicMock()
+        mock_connect.return_value = mock_connection
+
+        mock_cursor = MagicMock()
+        mock_connection.cursor.return_value.__enter__.return_value = mock_cursor
 
         event = {
             'body': json.dumps({
@@ -48,6 +65,7 @@ class TestLambdaHandler(unittest.TestCase):
         context = {}
 
         response = lambda_handler(event, context)
+        print(response)
 
         self.assertEqual(response['statusCode'], 200)
         data = json.loads(response['body'])
@@ -163,7 +181,7 @@ class TestLambdaHandler(unittest.TestCase):
         )
 
         with self.assertRaises(Exception) as context:
-            get_secret()
+            get_secret("cognitoKeys")
 
         self.assertEqual(context.exception.args[0]['statusCode'], 404)
         self.assertIn('Secret cognitoKeys not found', context.exception.args[0]['body'])
@@ -174,7 +192,7 @@ class TestLambdaHandler(unittest.TestCase):
         mock_client_instance.get_secret_value.side_effect = NoCredentialsError()
 
         with self.assertRaises(Exception) as context:
-            get_secret()
+            get_secret("cognitoKeys")
 
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('AWS credentials not found', context.exception.args[0]['body'])
@@ -187,7 +205,7 @@ class TestLambdaHandler(unittest.TestCase):
         )
 
         with self.assertRaises(Exception) as context:
-            get_secret()
+            get_secret("cognitoKeys")
 
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('Incomplete AWS credentials', context.exception.args[0]['body'])
@@ -198,7 +216,7 @@ class TestLambdaHandler(unittest.TestCase):
         mock_client_instance.get_secret_value.side_effect = Exception("Unknown error")
 
         with self.assertRaises(Exception) as context:
-            get_secret()
+            get_secret("cognitoKeys")
 
         self.assertEqual(context.exception.args[0]['statusCode'], 500)
         self.assertIn('Unknown error', context.exception.args[0]['body'])
@@ -212,7 +230,7 @@ class TestLambdaHandler(unittest.TestCase):
         )
 
         with self.assertRaises(Exception) as context:
-            get_secret()
+            get_secret("cognitoKeys")
 
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid request for secret cognitoKeys', context.exception.args[0]['body'])
@@ -226,7 +244,7 @@ class TestLambdaHandler(unittest.TestCase):
         )
 
         with self.assertRaises(Exception) as context:
-            get_secret()
+            get_secret("cognitoKeys")
 
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid parameter for secret cognitoKeys', context.exception.args[0]['body'])
@@ -240,7 +258,7 @@ class TestLambdaHandler(unittest.TestCase):
         )
 
         with self.assertRaises(Exception) as context:
-            get_secret()
+            get_secret("cognitoKeys")
 
         self.assertEqual(context.exception.args[0]['statusCode'], 403)
         self.assertIn('Access denied for secret cognitoKeys', context.exception.args[0]['body'])
@@ -276,7 +294,7 @@ class TestLambdaHandler(unittest.TestCase):
         )
 
         with self.assertRaises(Exception) as context:
-            get_secret()
+            get_secret("cognitoKeys")
 
         self.assertEqual(context.exception.args[0]['statusCode'], 500)
         self.assertIn('Error retrieving secret cognitoKeys', context.exception.args[0]['body'])
