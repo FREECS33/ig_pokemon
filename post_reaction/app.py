@@ -120,22 +120,22 @@ def lambda_handler(event, context):
                                     likes_count = (
                                         SELECT COUNT(*) 
                                         FROM Interactions i 
-                                        WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'like'
+                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'like'
                                     ) -
                                     (
                                         SELECT COUNT(*) 
                                         FROM Interactions i 
-                                        WHERE i.id_pokemon = p.id_pokemon AND i.tipo_actual = 'like'
+                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.tipo_actual = 'like'
                                     ),
                                     dislikes_count = (
                                         SELECT COUNT(*) 
                                         FROM Interactions i 
-                                        WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike'
+                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike'
                                     ) -
                                     (
                                         SELECT COUNT(*) 
                                         FROM Interactions i 
-                                        WHERE i.id_pokemon = p.id_pokemon AND i.tipo_actual = 'dislike'
+                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.tipo_actual = 'dislike'
                                     )
                                 WHERE p.id_pokemon = %s;
                             """, (fk_id_pokemon,))
@@ -161,16 +161,16 @@ def lambda_handler(event, context):
                                     likes_count = likes_count - (
                                         SELECT COUNT(*) 
                                         FROM Interactions i
-                                        WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'like' AND i.interaction_id = %s
+                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'like' AND i.interaction_id = %s
                                     ),
                                     dislikes_count = dislikes_count - (
                                         SELECT COUNT(*) 
                                         FROM Interactions i
-                                        WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike' AND i.interaction_id = %s
+                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike' AND i.interaction_id = %s
                                     )
                                 WHERE p.id_pokemon = %s;
 
-                            """, (fk_id_pokemon,))
+                            """, (fk_id_pokemon,fk_id_pokemon,fk_id_pokemon))
 
                     else:
                         # Insertar nueva interacción
@@ -186,12 +186,12 @@ def lambda_handler(event, context):
                                 likes_count = (
                                     SELECT COUNT(*)
                                     FROM Interactions i
-                                    WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'like'
+                                    WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'like'
                                 ),
                                 dislikes_count = (
                                     SELECT COUNT(*)
                                     FROM Interactions i
-                                    WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike'
+                                    WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike'
                                 )
                             WHERE p.id_pokemon = %s;
                         """, (fk_id_pokemon,))
