@@ -119,7 +119,6 @@ def lambda_handler(event, context):
         with connection.cursor() as cursor:
             id_user = event['queryStringParameters']['id_user']
 
-            # Obtener datos básicos del usuario
             cursor.execute("""
                 SELECT 
                     photo, 
@@ -141,7 +140,6 @@ def lambda_handler(event, context):
                     "fk_id_badge": user_info[4],
                 }
 
-                # Obtener los pokemones creados por el usuario
                 cursor.execute("""
                     SELECT 
                         id_pokemon, 
@@ -155,7 +153,6 @@ def lambda_handler(event, context):
                     {"id_pokemon": row[0], "image": row[1]} for row in created_pokemons
                 ]
 
-                # Obtener los pokemones a los que el usuario les ha dado like
                 cursor.execute("""
                     SELECT 
                         p.id_pokemon, 
