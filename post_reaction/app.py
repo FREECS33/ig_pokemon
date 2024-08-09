@@ -111,7 +111,7 @@ def lambda_handler(event, context):
 
                     if result:
                         tipo_actual = result[0]
-
+                        
                         if tipo_actual != interaction_type:
                             # Actualizar contadores
                             cursor.execute("""
@@ -121,7 +121,7 @@ def lambda_handler(event, context):
                                     + CASE WHEN interaction_type = 'like' THEN 1 ELSE 0 END,
                                     dislikes_count = dislikes_count + CASE WHEN tipo_actual = 'dislike' THEN -1 ELSE 0 END
                                     + CASE WHEN interaction_type = 'dislike' THEN 1 ELSE 0 END
-                                WHERE id = %s
+                                WHERE id_pokemon = %s
                             """, (fk_id_pokemon,))
 
                             # Actualizar la interacción
@@ -144,7 +144,7 @@ def lambda_handler(event, context):
                                 SET 
                                     likes_count = likes_count - CASE WHEN interaction_type = 'like' THEN 1 ELSE 0 END,
                                     dislikes_count = dislikes_count - CASE WHEN interaction_type = 'dislike' THEN 1 ELSE 0 END
-                                WHERE id = %s
+                                WHERE id_pokemon = %s
                             """, (fk_id_pokemon,))
 
                     else:
@@ -160,7 +160,7 @@ def lambda_handler(event, context):
                             SET 
                                 likes_count = likes_count + CASE WHEN interaction_type = 'like' THEN 1 ELSE 0 END,
                                 dislikes_count = dislikes_count + CASE WHEN interaction_type = 'dislike' THEN 1 ELSE 0 END
-                            WHERE id = %s
+                            WHERE id_pokemon = %s
                         """, (fk_id_pokemon,))
 
                 connection.commit()
