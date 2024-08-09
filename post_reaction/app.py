@@ -115,13 +115,29 @@ def lambda_handler(event, context):
                         if tipo_actual != interaction_type:
                             # Actualizar contadores
                             cursor.execute("""
-                                UPDATE Pokemon
+                                UPDATE Pokemon p
                                 SET 
-                                    likes_count = likes_count + CASE WHEN tipo_actual = 'like' THEN -1 ELSE 0 END
-                                    + CASE WHEN interaction_type = 'like' THEN 1 ELSE 0 END,
-                                    dislikes_count = dislikes_count + CASE WHEN tipo_actual = 'dislike' THEN -1 ELSE 0 END
-                                    + CASE WHEN interaction_type = 'dislike' THEN 1 ELSE 0 END
-                                WHERE id_pokemon = %s
+                                    likes_count = (
+                                        SELECT COUNT(*) 
+                                        FROM Interactions i 
+                                        WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'like'
+                                    ) -
+                                    (
+                                        SELECT COUNT(*) 
+                                        FROM Interactions i 
+                                        WHERE i.id_pokemon = p.id_pokemon AND i.tipo_actual = 'like'
+                                    ),
+                                    dislikes_count = (
+                                        SELECT COUNT(*) 
+                                        FROM Interactions i 
+                                        WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike'
+                                    ) -
+                                    (
+                                        SELECT COUNT(*) 
+                                        FROM Interactions i 
+                                        WHERE i.id_pokemon = p.id_pokemon AND i.tipo_actual = 'dislike'
+                                    )
+                                WHERE p.id_pokemon = %s;
                             """, (fk_id_pokemon,))
 
                             # Actualizar la interacción
@@ -140,11 +156,20 @@ def lambda_handler(event, context):
 
                             # Actualizar contadores
                             cursor.execute("""
-                                UPDATE Pokemon
+                                UPDATE Pokemon p
                                 SET 
-                                    likes_count = likes_count - CASE WHEN interaction_type = 'like' THEN 1 ELSE 0 END,
-                                    dislikes_count = dislikes_count - CASE WHEN interaction_type = 'dislike' THEN 1 ELSE 0 END
-                                WHERE id_pokemon = %s
+                                    likes_count = likes_count - (
+                                        SELECT COUNT(*) 
+                                        FROM Interactions i
+                                        WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'like' AND i.interaction_id = %s
+                                    ),
+                                    dislikes_count = dislikes_count - (
+                                        SELECT COUNT(*) 
+                                        FROM Interactions i
+                                        WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike' AND i.interaction_id = %s
+                                    )
+                                WHERE p.id_pokemon = %s;
+
                             """, (fk_id_pokemon,))
 
                     else:
@@ -156,11 +181,19 @@ def lambda_handler(event, context):
 
                         # Actualizar contadores
                         cursor.execute("""
-                            UPDATE Pokemon
+                            UPDATE Pokemon p
                             SET 
-                                likes_count = likes_count + CASE WHEN interaction_type = 'like' THEN 1 ELSE 0 END,
-                                dislikes_count = dislikes_count + CASE WHEN interaction_type = 'dislike' THEN 1 ELSE 0 END
-                            WHERE id_pokemon = %s
+                                likes_count = (
+                                    SELECT COUNT(*)
+                                    FROM Interactions i
+                                    WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'like'
+                                ),
+                                dislikes_count = (
+                                    SELECT COUNT(*)
+                                    FROM Interactions i
+                                    WHERE i.id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike'
+                                )
+                            WHERE p.id_pokemon = %s;
                         """, (fk_id_pokemon,))
 
                 connection.commit()
