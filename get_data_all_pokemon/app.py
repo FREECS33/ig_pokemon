@@ -102,13 +102,17 @@ def lambda_handler(event, context):
             )
 
             try:
+                body = json.loads(event['body'])
+                user_id = body.get('id_user')
+
                 with connection.cursor() as cursor:
                     query = """
-                        SELECT p.*, u.username as user_name, u.photo as user_photo
+                        SELECT p.*, u.username as user_name, u.photo as user_photo, i.interaction_type
                         FROM Pokemon p
                         JOIN Users u ON p.fk_id_user_creator = u.id_user
+                        LEFT JOIN Interactions i ON p.id_pokemon = i.Fk_id_pokemon AND i.Fk_id_user = %s
                     """
-                    cursor.execute(query)
+                    cursor.execute(query, (user_id,))
                     result = cursor.fetchall()
                     columns = [column[0] for column in cursor.description]
                     result = [dict(zip(columns, row)) for row in result]
