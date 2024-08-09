@@ -102,12 +102,68 @@ def lambda_handler(event, context):
                     raise ValueError("Invalid interaction_type")
 
                 with connection.cursor() as cursor:
-                    sql = """
-                    INSERT INTO Interactions (Fk_id_user, Fk_id_pokemon, interaction_type)
-                    VALUES (%s, %s, %s)
-                    """
-                    cursor.execute(sql, (fk_id_user, fk_id_pokemon, interaction_type))
-                    connection.commit()
+                    # Verificar si ya existe una interacción
+                    cursor.execute("""
+                        SELECT interaction_type FROM Interactions
+                        WHERE Fk_id_user = %s AND Fk_id_pokemon = %s
+                    """, (fk_id_user, fk_id_pokemon))
+                    result = cursor.fetchone()
+
+                    if result:
+                        tipo_actual = result[0]
+
+                        if tipo_actual != interaction_type:
+                            # Actualizar contadores
+                            cursor.execute("""
+                                UPDATE Pokemon
+                                SET 
+                                    likes_count = likes_count + CASE WHEN tipo_actual = 'like' THEN -1 ELSE 0 END
+                                    + CASE WHEN interaction_type = 'like' THEN 1 ELSE 0 END,
+                                    dislikes_count = dislikes_count + CASE WHEN tipo_actual = 'dislike' THEN -1 ELSE 0 END
+                                    + CASE WHEN interaction_type = 'dislike' THEN 1 ELSE 0 END
+                                WHERE id = %s
+                            """, (fk_id_pokemon,))
+
+                            # Actualizar la interacción
+                            cursor.execute("""
+                                UPDATE Interactions
+                                SET interaction_type = %s
+                                WHERE Fk_id_user = %s AND Fk_id_pokemon = %s
+                            """, (interaction_type, fk_id_user, fk_id_pokemon))
+
+                        else:
+                            # La nueva interacción es la misma que la actual, eliminarla
+                            cursor.execute("""
+                                DELETE FROM Interactions
+                                WHERE Fk_id_user = %s AND Fk_id_pokemon = %s
+                            """, (fk_id_user, fk_id_pokemon))
+
+                            # Actualizar contadores
+                            cursor.execute("""
+                                UPDATE Pokemon
+                                SET 
+                                    likes_count = likes_count - CASE WHEN interaction_type = 'like' THEN 1 ELSE 0 END,
+                                    dislikes_count = dislikes_count - CASE WHEN interaction_type = 'dislike' THEN 1 ELSE 0 END
+                                WHERE id = %s
+                            """, (fk_id_pokemon,))
+
+                    else:
+                        # Insertar nueva interacción
+                        cursor.execute("""
+                            INSERT INTO Interactions (Fk_id_user, Fk_id_pokemon, interaction_type)
+                            VALUES (%s, %s, %s)
+                        """, (fk_id_user, fk_id_pokemon, interaction_type))
+
+                        # Actualizar contadores
+                        cursor.execute("""
+                            UPDATE Pokemon
+                            SET 
+                                likes_count = likes_count + CASE WHEN interaction_type = 'like' THEN 1 ELSE 0 END,
+                                dislikes_count = dislikes_count + CASE WHEN interaction_type = 'dislike' THEN 1 ELSE 0 END
+                            WHERE id = %s
+                        """, (fk_id_pokemon,))
+
+                connection.commit()
 
                 response = {
                     "statusCode": 200,
