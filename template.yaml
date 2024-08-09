@@ -261,6 +261,23 @@ Resources:
             Path: /get_all_users
             Method: get
 
+  DeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: delete_user/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        DeleteUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ServerlessRestApi
+            Path: /delete_user
+            Method: delete
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
@@ -314,6 +331,11 @@ Outputs:
     Description: "API Gateway endpoint URL for GetAllUsers function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_all_users/"
 
+  DeleteUserApi:
+    Description: "API Gateway endpoint URL for DeleteUser function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_user/"
+
+
   GetAllUsersFunction:
     Description: "Get All Users Lambda Function ARN"
     Value: !GetAtt GetAllUsersFunction.Arn
@@ -365,3 +387,7 @@ Outputs:
   LoginFunction:
     Description: "Login Lambda Function ARN"
     Value: !GetAtt LoginFunction.Arn
+
+  DeleteUserFunction:
+    Description: "Delete User Lambda Function ARN"
+    Value: !GetAtt DeleteUserFunction.Arn
