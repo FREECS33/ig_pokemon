@@ -161,12 +161,12 @@ def lambda_handler(event, context):
                                     likes_count = likes_count - (
                                         SELECT COUNT(*) 
                                         FROM Interactions i
-                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'like' AND i.interaction_id = %s
+                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'like' AND i.id_interaction = %s
                                     ),
                                     dislikes_count = dislikes_count - (
                                         SELECT COUNT(*) 
                                         FROM Interactions i
-                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike' AND i.interaction_id = %s
+                                        WHERE i.Fk_id_pokemon = p.id_pokemon AND i.interaction_type = 'dislike' AND i.id_interaction = %s
                                     )
                                 WHERE p.id_pokemon = %s;
 
