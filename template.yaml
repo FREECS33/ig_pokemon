@@ -53,7 +53,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ServerlessRestApi
-            Path: /get_pokemon
+            Path: /get_all_pokemon
             Method: post
 
 
