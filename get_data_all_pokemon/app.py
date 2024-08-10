@@ -107,10 +107,9 @@ def lambda_handler(event, context):
 
                 with connection.cursor() as cursor:
                     query = """
-                        SELECT p.*, u.username as user_name, u.photo as user_photo, i.interaction_type
+                        SELECT p.*, u.username as user_name, u.photo as user_photo
                         FROM Pokemon p
                         JOIN Users u ON p.fk_id_user_creator = u.id_user
-                        LEFT JOIN Interactions i ON p.id_pokemon = i.Fk_id_pokemon AND i.Fk_id_user = %s
                     """
                     cursor.execute(query, (user_id,))
                     result = cursor.fetchall()
