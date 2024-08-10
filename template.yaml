@@ -53,7 +53,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ServerlessRestApi
-            Path: /get_pokemon
+            Path: /get_all_pokemon
             Method: post
 
 
@@ -298,7 +298,7 @@ Resources:
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_pokemon/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_all_pokemon/"
 
   GetOnePokemonApi:
     Description: "API Gateway endpoint URL for GetOnePokemon function"
