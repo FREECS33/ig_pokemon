@@ -116,9 +116,10 @@ def lambda_handler(event, context):
         }
 
     try:
-        with connection.cursor() as cursor:
-            id_user = event['queryStringParameters']['id_user']
+        body = json.loads(event['body'])
+        id_user = body['id_user']
 
+        with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT 
                     photo, 

@@ -276,7 +276,7 @@ Resources:
           Properties:
             RestApiId: !Ref ServerlessRestApi
             Path: /get_user_by_id
-            Method: get
+            Method: post
 
 Outputs:
   GetPokemonApi:
