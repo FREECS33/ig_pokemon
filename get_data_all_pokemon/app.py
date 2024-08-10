@@ -105,9 +105,7 @@ def lambda_handler(event, context):
 
                 with connection.cursor() as cursor:
                     query = """
-                        SELECT p.*, u.username as user_name, u.photo as user_photo
-                        FROM Pokemon p
-                        JOIN Users u ON p.fk_id_user_creator = u.id_user
+                        SELECT * FROM Pokemon
                     """
                     cursor.execute(query)
                     result = cursor.fetchall()
