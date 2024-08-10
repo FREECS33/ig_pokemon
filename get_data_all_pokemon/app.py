@@ -105,11 +105,13 @@ def lambda_handler(event, context):
 
                 with connection.cursor() as cursor:
                     query = """
-                        SELECT * FROM Pokemon
+                        SELECT p.*, u.username as user_name, u.photo as user_photo
+                        FROM Pokemon p
+                        JOIN Users u ON p.fk_id_user_creator = u.id_user
                     """
                     cursor.execute(query)
                     result = cursor.fetchall()
-                    columns = [column[0] for column in cursor.description]
+                    columns = [column[0] for column in (cursor.description or [])]
                     result = [dict(zip(columns, row)) for row in result]
                 response = {
                     "statusCode": 200,
