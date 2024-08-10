@@ -104,14 +104,21 @@ def lambda_handler(event, context):
             )
 
             try:
-
+                body = json.loads(event['body'])
+                user_id = body['id_user']
                 with connection.cursor() as cursor:
                     query = """
-                        SELECT p.*, u.username as user_name, u.photo as user_photo
+                        SELECT p.*, 
+                             u.username AS user_name, 
+                               u.photo AS user_photo,
+                               COALESCE(i.interaction_type, 'none') AS user_interaction
                         FROM Pokemon p
                         JOIN Users u ON p.fk_id_user_creator = u.id_user
+                        LEFT JOIN Interactions i ON i.Fk_id_pokemon = p.id_pokemon 
+                                                 AND i.Fk_id_user = %s
+
                     """
-                    cursor.execute(query)
+                    cursor.execute(query,(user_id,))
                     result = cursor.fetchall()
                     columns = [column[0] for column in (cursor.description or [])]
                     result = [dict(zip(columns, row)) for row in result]
