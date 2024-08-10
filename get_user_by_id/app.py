@@ -117,7 +117,7 @@ def lambda_handler(event, context):
 
     try:
         body = json.loads(event['body'])
-        id_user = body['id_user']
+        email = body['email']
 
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -128,8 +128,8 @@ def lambda_handler(event, context):
                     pokemon_favorite_count, 
                     fk_id_badge 
                 FROM Users 
-                WHERE id_user = %s
-            """, (id_user,))
+                WHERE email = %s
+            """, (email,))
             user_info = cursor.fetchone()
 
             if user_info:
