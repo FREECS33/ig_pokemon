@@ -1,0 +1,4 @@
+requests
+pymysql
+boto3
+PyJWT
