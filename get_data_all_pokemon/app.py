@@ -67,6 +67,7 @@ def get_secret():
 
 
 def lambda_handler(event, context):
+    """
     token = event['headers']['Authorization'].split(' ')[1]
     decoded_token = jwt.decode(token, options={"verify_signature": False})
 
@@ -78,6 +79,7 @@ def lambda_handler(event, context):
             "body": json.dumps("Access Denied: Insufficient permits")
         })
 
+    """
     try:
         secrets = get_secret()
 
