@@ -109,9 +109,9 @@ def lambda_handler(event, context):
                 with connection.cursor() as cursor:
                     query = """
                         SELECT p.*, 
-                             u.username AS user_name, 
-                               u.photo AS user_photo,
-                               COALESCE(i.interaction_type, 'none') AS user_interaction
+                            u.username AS user_name, 
+                            u.photo AS user_photo,
+                            COALESCE(i.interaction_type, 'none') AS user_interaction
                         FROM Pokemon p
                         JOIN Users u ON p.fk_id_user_creator = u.id_user
                         LEFT JOIN Interactions i ON i.Fk_id_pokemon = p.id_pokemon 
