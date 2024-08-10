@@ -102,8 +102,6 @@ def lambda_handler(event, context):
             )
 
             try:
-                body = json.loads(event['body'])
-                user_id = body.get('id_user')
 
                 with connection.cursor() as cursor:
                     query = """
@@ -111,7 +109,7 @@ def lambda_handler(event, context):
                         FROM Pokemon p
                         JOIN Users u ON p.fk_id_user_creator = u.id_user
                     """
-                    cursor.execute(query, (user_id,))
+                    cursor.execute(query)
                     result = cursor.fetchall()
                     columns = [column[0] for column in cursor.description]
                     result = [dict(zip(columns, row)) for row in result]
