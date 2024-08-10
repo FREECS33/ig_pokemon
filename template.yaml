@@ -261,6 +261,23 @@ Resources:
             Path: /get_all_users
             Method: get
 
+  GetUserByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_user_by_id/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        GetUserById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ServerlessRestApi
+            Path: /get_user_by_id
+            Method: post
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
@@ -314,6 +331,11 @@ Outputs:
     Description: "API Gateway endpoint URL for GetAllUsers function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_all_users/"
 
+  GetUserByIdApi:
+    Description: "API Gateway endpoint URL for GetUserById function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_user_by_id/"
+
+
   GetAllUsersFunction:
     Description: "Get All Users Lambda Function ARN"
     Value: !GetAtt GetAllUsersFunction.Arn
@@ -365,3 +387,7 @@ Outputs:
   LoginFunction:
     Description: "Login Lambda Function ARN"
     Value: !GetAtt LoginFunction.Arn
+
+  GetUserByIdFunction:
+    Description: "Get user by id Lambda Function ARN"
+    Value: !GetAtt GetUserByIdFunction.Arn
