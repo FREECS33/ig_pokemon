@@ -38,6 +38,7 @@ jobs:
           pip install -r login/requirements.txt
           pip install -r get_all_users/requirements.txt
           pip install -r get_user_by_id/requirements.txt
+          pip install -r get_user_by_email/requirements.txt
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -78,6 +79,7 @@ jobs:
           pip install -r login/requirements.txt
           pip install -r get_all_users/requirements.txt
           pip install -r get_user_by_id/requirements.txt
+          pip install -r get_user_by_email/requirements.txt
 
       - name: Install AWS CLI
         run: |

@@ -278,6 +278,23 @@ Resources:
             Path: /get_user_by_id
             Method: post
 
+  GetUserByEmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_user_by_email/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        GetUserByEmail:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ServerlessRestApi
+            Path: /get_user_by_email
+            Method: post
+
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
@@ -335,6 +352,13 @@ Outputs:
     Description: "API Gateway endpoint URL for GetUserById function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_user_by_id/"
 
+  GetUserByEmailApi:
+    Description: "API Gateway endpoint URL for GetUserByEmail function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_user_by_email/"
+
+  GetUserByEmailFunction:
+    Description: "Get User By Email Lambda Function ARN"
+    Value: !GetAtt GetUserByEmailFunction.Arn
 
   GetAllUsersFunction:
     Description: "Get All Users Lambda Function ARN"
