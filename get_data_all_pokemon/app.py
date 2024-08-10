@@ -98,7 +98,7 @@ def lambda_handler(event, context):
                 user=name,
                 password=password,
                 db=db_name,
-                connect_timeout=5
+                connect_timeout=10
             )
 
             try:
