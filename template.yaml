@@ -54,7 +54,7 @@ Resources:
           Properties:
             RestApiId: !Ref ServerlessRestApi
             Path: /get_pokemon
-            Method: get
+            Method: post
 
 
   GetOnePokemonFunction:
