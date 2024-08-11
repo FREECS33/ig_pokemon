@@ -113,7 +113,7 @@ def lambda_handler(event, context):
                         FROM Pokemon p
                         JOIN Users u ON p.fk_id_user_creator = u.id_user
                         LEFT JOIN Interactions i ON i.Fk_id_pokemon = p.id_pokemon 
-                                                 AND i.Fk_id_user = 7
+                                                 AND i.Fk_id_user = %s
                                                  AND i.interaction_type IN ('like', 'dislike')
 
                     """
