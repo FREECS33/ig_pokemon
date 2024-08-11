@@ -9,24 +9,6 @@ Globals:
   Function:
     Timeout: 10
 
-Parameters:
-  ExistingDBSecretArn:
-    Type: String
-    Description: "ARN FOR DB SECRETS"
-    Default: "arn:aws:secretsmanager:us-east-2:058264517160:secret:sionpoKeys-ljHzpY"
-  ExistingCognitoSecretArn:
-    Type: String
-    Description: "ARN FOR COGNITO SECRETS"
-    Default: "arn:aws:secretsmanager:us-east-2:058264517160:secret:cognitoKeys-0imr1O"
-  ExistingUserPoolId:
-    Type: String
-    Description: "USER POOL"
-    Default: "us-east-2_NDXZOG7DQ"
-  ExistingDbEndpoint:
-    Type: String
-    Description: "DB ARN"
-    Default: "sionpo.clouqoguo4hz.us-east-2.rds.amazonaws.com"
-
 Resources:
   ServerlessRestApi:
     Type: AWS::Serverless::Api
@@ -36,8 +18,6 @@ Resources:
         AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
         AllowHeaders: "'Content-Type,Authorization'"
         AllowOrigin: "'*'"
-
-
 
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -58,6 +38,26 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: '*'
+  DBSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: "sionpoKeys"
+    DeletionPolicy: Retain
+  CognitoSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: "cognitoKeys"
+    DeletionPolicy: Retain
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: "users"
+    DeletionPolicy: Retain
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: "sionpo"
+    DeletionPolicy: Retain
 
   GetPokemonFunction:
     Type: AWS::Serverless::Function
@@ -68,10 +68,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         GetPokemon:
           Type: Api
@@ -90,10 +86,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         GetOnePokemon:
           Type: Api
@@ -111,10 +103,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         AddPokemon:
           Type: Api
@@ -132,10 +120,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         AddPokemon:
           Type: Api
@@ -153,10 +137,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         AddPokemon:
           Type: Api
@@ -174,10 +154,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         UpdatePokemon:
           Type: Api
@@ -195,10 +171,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         DeletePokemon:
           Type: Api
@@ -216,10 +188,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         DeletePokemon:
           Type: Api
@@ -237,10 +205,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         DeleteReaction:
           Type: Api
@@ -258,12 +222,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRETDB_ARN: !Ref ExistingDBSecretArn
-          SECRETCOGNITO_ARN: !Ref ExistingCognitoSecretArn
-          USER_POOL_ID: !Ref ExistingUserPoolId
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         DeleteReaction:
           Type: Api
@@ -281,10 +239,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingCognitoSecretArn
-          USER_POOL_ID: !Ref ExistingUserPoolId
       Events:
         ConfirmRegister:
           Type: Api
@@ -302,10 +256,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingCognitoSecretArn
-          USER_POOL_ID: !Ref ExistingUserPoolId
       Events:
         Login:
           Type: Api
@@ -323,10 +273,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         GetAllUsers:
           Type: Api
@@ -344,10 +290,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         GetUserById:
           Type: Api
@@ -365,10 +307,6 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref ExistingDBSecretArn
-          DB_ENDPOINT: !Ref ExistingDbEndpoint
       Events:
         GetUserByEmail:
           Type: Api
