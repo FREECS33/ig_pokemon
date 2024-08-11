@@ -12,16 +12,16 @@ Globals:
 Parameters:
   ExistingDBSecretArn:
     Type: String
-    Description: arn:aws:secretsmanager:us-east-2:058264517160:secret:sionpoKeys-ljHzpY
+    Description: "arn:aws:secretsmanager:us-east-2:058264517160:secret:sionpoKeys-ljHzpY"
   ExistingCognitoSecretArn:
     Type: String
-    Description: arn:aws:secretsmanager:us-east-2:058264517160:secret:cognitoKeys-0imr1O
+    Description: "arn:aws:secretsmanager:us-east-2:058264517160:secret:cognitoKeys-0imr1O"
   ExistingUserPoolId:
     Type: String
-    Description: us-east-2_NDXZOG7DQ
+    Description: "us-east-2_NDXZOG7DQ"
   ExistingDbEndpoint:
     Type: String
-    Description: sionpo.clouqoguo4hz.us-east-2.rds.amazonaws.com
+    Description: "sionpo.clouqoguo4hz.us-east-2.rds.amazonaws.com"
 
 Resources:
   ServerlessRestApi:
