@@ -38,26 +38,6 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: '*'
-  DBSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: "sionpoKeys"
-    DeletionPolicy: Retain
-  CognitoSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: "cognitoKeys"
-    DeletionPolicy: Retain
-  CognitoUserPool:
-    Type: AWS::Cognito::UserPool
-    Properties:
-      UserPoolName: "users"
-    DeletionPolicy: Retain
-  DBInstance:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      DBInstanceIdentifier: "sionpo"
-    DeletionPolicy: Retain
 
   GetPokemonFunction:
     Type: AWS::Serverless::Function
