@@ -82,7 +82,6 @@ def lambda_handler(event, context):
         likes_count = body['likes_count']
         dislikes_count = body['dislikes_count']
         creation_update_date = body['creation_update_date']
-        id_pokemon = body['id_pokemon']
         fk_id_user_creator = body['fk_id_user_creator']
 
         if likes_count < 0:
@@ -131,25 +130,21 @@ def lambda_handler(event, context):
                     INSERT INTO Pokemon (
                         pokemon_name, abilities, types, description, 
                         evolution_conditions, image, likes_count, 
-                        dislikes_count, creation_update_date, id_pokemon, fk_id_user_creator
+                        dislikes_count, creation_update_date, fk_id_user_creator
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
                 """
             cursor.execute(sql, (
                 pokemon_name, abilities, types, description,
                 evolution_conditions, image, likes_count,
-                dislikes_count, creation_update_date, id_pokemon, fk_id_user_creator
+                dislikes_count, creation_update_date, fk_id_user_creator
             ))
             connection.commit()
-
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM Pokemon")
-            result = cursor.fetchall()
-
+        
         response = {
             "statusCode": 200,
-            "body": json.dumps(result)
+            "body": json.dumps({"message": "Pokemon created successfully"})
         }
 
     except pymysql.MySQLError as error:
