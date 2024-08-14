@@ -67,18 +67,18 @@ def get_secret():
 
 
 def lambda_handler(event, context):
-    token = event['headers']['Authorization'].split(' ')[1]
-    decoded_token = jwt.decode(token, options={"verify_signature": False})
-
-    user_groups = decoded_token.get('cognito:groups', [])
-    
-    if "user" not in user_groups:
-        raise Exception({
-            "statusCode": 403,
-            "body": json.dumps("Access Denied: Insufficient permits")
-        })
-
     try:
+        token = event['headers']['Authorization'].split(' ')[1]
+        decoded_token = jwt.decode(token, options={"verify_signature": False})
+
+        user_groups = decoded_token.get('cognito:groups', [])
+
+        if "user" not in user_groups:
+            raise Exception({
+                "statusCode": 403,
+                "body": json.dumps("Access Denied: Insufficient permits")
+            })
+
         body = json.loads(event['body'])
         required_fields = ['pokemon_name', 'abilities', 'types', 'description', 'image']
         for field in required_fields:
