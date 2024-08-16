@@ -67,49 +67,31 @@ def get_secret():
 
 
 def lambda_handler(event, context):
-    try:
-        body = json.loads(event['body'])
-        required_fields = ['pokemon_name', 'abilities', 'types', 'description', 'image']
-        for field in required_fields:
-            if field not in body:
-                raise ValueError(f"Missing required field: {field}")
-        pokemon_name = body['pokemon_name']
-        abilities = json.dumps(body['abilities'])
-        types = json.dumps(body['types'])
-        description = body['description']
-        evolution_conditions = body['evolution_conditions']
-        image = body['image']
-        likes_count = body['likes_count']
-        dislikes_count = body['dislikes_count']
-        creation_update_date = body['creation_update_date']
-        fk_id_user_creator = body['fk_id_user_creator']
+    """
+    token = event['headers']['Authorization'].split(' ')[1]
+    decoded_token = jwt.decode(token, options={"verify_signature": False})
 
-        if likes_count < 0:
-            return {
-                "statusCode": 422,
-                "body": json.dumps({"message": "likes_count cannot be negative"})
-            }
-        if dislikes_count < 0:
-            return {
-                "statusCode": 422,
-                "body": json.dumps({"message": "likes_count cannot be negative"})
-            }
-    except (json.JSONDecodeError, ValueError) as error:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": str(error)})
-        }
+    user_groups = decoded_token.get('cognito:groups', [])
+
+    if "user" not in user_groups and "mod" not in user_groups:
+        raise Exception({
+            "statusCode": 403,
+            "body": json.dumps("Access Denied: Insufficient permits")
+        })
+    """
     try:
         secrets = get_secret()
-    except Exception as error:
+    except Exception as e:
         return {
-            "statusCode": 500,
-            "body": json.dumps({"message": str(error)})
+            "statusCode": 403,
+            "body": json.dumps(f"Error retrieving secret: {str(e)}")
         }
+
     host = secrets['host']
     name = secrets['username']
     password = secrets['password']
     db_name = "SIONPO"
+
     try:
         connection = pymysql.connect(
             host=host,
@@ -118,40 +100,84 @@ def lambda_handler(event, context):
             db=db_name,
             connect_timeout=5
         )
-    except pymysql.MySQLError as error:
+    except pymysql.IntegrityError as e:
+        return {
+            "statusCode": 422,
+            "body": json.dumps(f"Database integrity error: {str(e)}")
+        }
+    except pymysql.OperationalError as e:
+        return {
+            "statusCode": 503,
+            "body": json.dumps(f"Database connection error: {str(e)}")
+        }
+    except pymysql.MySQLError as e:
         return {
             "statusCode": 500,
-            "body": json.dumps(str(error))
+            "body": json.dumps(f"Database error: {str(e)}")
         }
 
     try:
+        body = json.loads(event['body'])
+        email = body['email']
+
         with connection.cursor() as cursor:
-            sql = """
-                    INSERT INTO Pokemon (
-                        pokemon_name, abilities, types, description, 
-                        evolution_conditions, image, likes_count, 
-                        dislikes_count, creation_update_date, fk_id_user_creator
-                    ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-                    )
-                """
-            cursor.execute(sql, (
-                pokemon_name, abilities, types, description,
-                evolution_conditions, image, likes_count,
-                dislikes_count, creation_update_date, fk_id_user_creator
-            ))
-            connection.commit()
-        
+            cursor.execute("""
+                SELECT 
+                    id_user, 
+                    username, 
+                    password, 
+                    photo
+                FROM Users 
+                WHERE email = %s
+            """, (email,))
+            user_info = cursor.fetchone()
+
+            if user_info:
+                response_data = {
+                    "id_user": user_info[0],
+                    "username": user_info[1],
+                    "password": user_info[2],
+                    "photo": user_info[3],
+                }
+
+                response = {
+                    "statusCode": 200,
+                    "body": json.dumps(response_data, default=str)
+                }
+            else:
+                response = {
+                    "statusCode": 404,
+                    "body": json.dumps("User not found")
+                }
+
+    except KeyError as e:
         response = {
-            "statusCode": 200,
-            "body": json.dumps({"message": "Pokemon created successfully"})
+            "statusCode": 400,
+            "body": json.dumps(f"Missing key in request body: {str(e)}")
         }
 
-    except pymysql.MySQLError as error:
+    except pymysql.IntegrityError as e:
+        response = {
+            "statusCode": 422,
+            "body": json.dumps(f"Database integrity error: {str(e)}")
+        }
 
+    except pymysql.OperationalError as e:
+        response = {
+            "statusCode": 503,
+            "body": json.dumps(f"Database connection error: {str(e)}")
+        }
+
+    except pymysql.MySQLError as e:
         response = {
             "statusCode": 500,
-            "body": json.dumps(str(error))
+            "body": json.dumps(f"Database error: {str(e)}")
+        }
+
+    except Exception as e:
+        response = {
+            "statusCode": 403,
+            "body": json.dumps(str(e))
         }
 
     finally:

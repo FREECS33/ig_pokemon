@@ -67,18 +67,18 @@ def get_secret():
 
 
 def lambda_handler(event, context):
-    token = event['headers']['Authorization'].split(' ')[1]
-    decoded_token = jwt.decode(token, options={"verify_signature": False})
-
-    user_groups = decoded_token.get('cognito:groups', [])
-
-    if "user" not in user_groups and "mod" not in user_groups:
-        raise Exception({
-            "statusCode": 403,
-            "body": json.dumps("Access Denied: Insufficient permits")
-        })
-
     try:
+        token = event['headers']['Authorization'].split(' ')[1]
+        decoded_token = jwt.decode(token, options={"verify_signature": False})
+
+        user_groups = decoded_token.get('cognito:groups', [])
+
+        if "user" not in user_groups and "mod" not in user_groups:
+            raise Exception({
+                "statusCode": 403,
+                "body": json.dumps("Access Denied: Insufficient permits")
+            })
+
         secrets = get_secret()
 
         host = secrets.get('host')
@@ -98,19 +98,28 @@ def lambda_handler(event, context):
                 user=name,
                 password=password,
                 db=db_name,
-                connect_timeout=5
+                connect_timeout=10
             )
 
             try:
+                body = json.loads(event['body'])
+                user_id = body['id_user']
                 with connection.cursor() as cursor:
                     query = """
-                        SELECT p.*, u.username as user_name, u.photo as user_photo
+                        SELECT p.*, 
+                            u.username AS user_name, 
+                            u.photo AS user_photo,
+                            i.interaction_type AS user_interaction
                         FROM Pokemon p
                         JOIN Users u ON p.fk_id_user_creator = u.id_user
+                        LEFT JOIN Interactions i ON i.Fk_id_pokemon = p.id_pokemon 
+                                                 AND i.Fk_id_user = %s
+                                                 AND i.interaction_type IN ('like', 'dislike')
+
                     """
-                    cursor.execute(query)
+                    cursor.execute(query,(user_id,))
                     result = cursor.fetchall()
-                    columns = [column[0] for column in cursor.description]
+                    columns = [column[0] for column in (cursor.description or [])]
                     result = [dict(zip(columns, row)) for row in result]
                 response = {
                     "statusCode": 200,

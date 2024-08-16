@@ -7,7 +7,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 5
+    Timeout: 10
 
 Resources:
   ServerlessRestApi:
@@ -53,8 +53,8 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ServerlessRestApi
-            Path: /get_pokemon
-            Method: get
+            Path: /get_all_pokemon
+            Method: post
 
 
   GetOnePokemonFunction:
@@ -281,7 +281,7 @@ Resources:
 Outputs:
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_pokemon/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_all_pokemon/"
 
   GetOnePokemonApi:
     Description: "API Gateway endpoint URL for GetOnePokemon function"
