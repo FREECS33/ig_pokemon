@@ -8,6 +8,11 @@ Description: >
 Globals:
   Function:
     Timeout: 10
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
 
 Resources:
   ServerlessRestApi:
@@ -18,6 +23,72 @@ Resources:
         AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
         AllowHeaders: "'Content-Type,Authorization'"
         AllowOrigin: "'*'"
+
+  DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow access to RDS
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+
+  DBSIONPO:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: sionpo2
+      AllocatedStorage: 20
+      DBInstanceClass: db.t3.micro
+      Engine: MySQL
+      MasterUsername: admin
+      MasterUserPassword: sionpo2024
+      VPCSecurityGroups:
+        - !GetAtt DBSecurityGroup.GroupId
+      PubliclyAccessible: true
+      MultiAZ: false
+
+  DBSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: sionpoKeys2
+      Description: "Secrets for sionpo db"
+
+  CognitoSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: cognitoKeys2
+      Description: "Secrets for cognito"
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: sionpoPool
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: true
+          Mutable: true
+        - AttributeDataType: String
+          Name: picture
+          Required: true
+          Mutable: true
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: sionpoClient
+      UserPoolId: !Ref UserPool
+      GenerateSecret: true
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: sionpoBucket
+      VersioningConfiguration:
+        Status: Enabled
 
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -38,6 +109,18 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: '*'
+              - Effect: Allow
+                Action:
+                  - apigateway:GET
+                  - apigateway:POST
+                  - apigateway:PUT
+                  - apigateway:DELETE
+                Resource: arn:aws:apigateway:*::/restapis/*
+              - Effect: Allow
+                Action:
+                  - cognito-idp:AdminListGroupsForUser
+                  - cognito-idp:AdminAddUserToGroup
+                Resource: arn:aws:cognito-idp:us-east-2:058264517160:userpool/us-east-2_NDXZOG7DQ
 
   GetPokemonFunction:
     Type: AWS::Serverless::Function
@@ -279,6 +362,24 @@ Resources:
             Method: delete
 
 Outputs:
+
+  LambdaExecutionRoleArn:
+    Description: "Implicit IAM Role created for Lambda function"
+    Value: !GetAtt LambdaExecutionRole.Arn
+
+  DBSecret:
+    Description: "Secret for the RDS instance"
+    Value: !GetAtt DBSecret
+
+  CognitoSecret:
+    Description: "Secret for the user pool"
+    Value: !GetAtt CognitoSecret
+
+  S3Bucket:
+    Description: "S3 Bucket"
+    Value: !Ref S3Bucket
+
+
   GetPokemonApi:
     Description: "API Gateway endpoint URL for GetPokemon function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_all_pokemon/"
