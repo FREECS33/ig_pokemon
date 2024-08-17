@@ -369,11 +369,11 @@ Outputs:
 
   DBSecret:
     Description: "Secret for the RDS instance"
-    Value: !GetAtt DBSecret
+    Value: !Ref DBSecret
 
   CognitoSecret:
     Description: "Secret for the user pool"
-    Value: !GetAtt CognitoSecret
+    Value: !Ref CognitoSecret
 
   S3Bucket:
     Description: "S3 Bucket"
