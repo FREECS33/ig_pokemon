@@ -2,3 +2,4 @@ requests
 pymysql
 boto3
 pyjwt
+cryptography
