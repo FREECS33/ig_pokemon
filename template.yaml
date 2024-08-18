@@ -471,6 +471,10 @@ Outputs:
     Description: "API Gateway endpoint URL for DeleteUser function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_user/"
 
+  GetUserByIdApi:
+    Description: "API Gateway endpoint URL for GetUserById function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_user_by_id/"
+
   GetUserByEmailApi:
     Description: "API Gateway endpoint URL for GetUserByEmail function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_user_by_email/"
