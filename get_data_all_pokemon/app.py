@@ -2,6 +2,8 @@ import json
 import pymysql
 import boto3
 import jwt
+from jwt import algorithms
+import requests
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
 
@@ -66,18 +68,66 @@ def get_secret():
         })
 
 
+def get_public_keys():
+    keys_url = "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_NDXZOG7DQ/.well-known/jwks.json"
+    response = requests.get(keys_url)
+    response.raise_for_status()
+    return response.json()["keys"]
+
+
 def lambda_handler(event, context):
     try:
-        token = event['headers']['Authorization'].split(' ')[1]
-        decoded_token = jwt.decode(token, options={"verify_signature": False})
+        try:
+            if "headers" not in event or "Authorization" not in event["headers"]:
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps("Authorization header is missing")
+                }
+            auth_header = event["headers"]["Authorization"]
 
-        user_groups = decoded_token.get('cognito:groups', [])
+            if not auth_header.startswith("Bearer "):
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps("Authorization header must start with 'Bearer '")
+                }
 
-        if "user" not in user_groups and "mod" not in user_groups:
-            raise Exception({
-                "statusCode": 403,
-                "body": json.dumps("Access Denied: Insufficient permits")
-            })
+            token = auth_header.split(' ')[1]
+
+            public_keys = get_public_keys()
+
+            header = jwt.get_unverified_header(token)
+            key = next(key for key in public_keys if key['kid'] == header['kid'])
+            public_key = algorithms.RSAAlgorithm.from_jwk(json.dumps(key))
+
+            decoded_token = jwt.decode(token, key=public_key, algorithms=["RS256"])
+
+            user_groups = decoded_token.get('cognito:groups', [])
+
+            if "user" not in user_groups and "mod" not in user_groups:
+                return {
+                    "statusCode": 403,
+                    "body": json.dumps("Access Denied: Insufficient permits")
+                }
+        except jwt.DecodeError:
+            return {
+                "statusCode": 400,
+                "body": json.dumps("Invalid token")
+            }
+        except jwt.ExpiredSignatureError:
+            return {
+                "statusCode": 401,
+                "body": json.dumps("Token has expired")
+            }
+        except jwt.InvalidTokenError as e:
+            return {
+                "statusCode": 401,
+                "body": json.dumps(f"Invalid token: {str(e)}")
+            }
+        except Exception as e:
+            return {
+                "statusCode": 500,
+                "body": json.dumps(f"Internal server error: {str(e)}")
+            }
 
         secrets = get_secret()
 
@@ -117,7 +167,7 @@ def lambda_handler(event, context):
                                                  AND i.interaction_type IN ('like', 'dislike')
 
                     """
-                    cursor.execute(query,(user_id,))
+                    cursor.execute(query, (user_id,))
                     result = cursor.fetchall()
                     columns = [column[0] for column in (cursor.description or [])]
                     result = [dict(zip(columns, row)) for row in result]
