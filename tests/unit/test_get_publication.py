@@ -8,6 +8,10 @@ from botocore.exceptions import ClientError, NoCredentialsError, PartialCredenti
 from get_publication.app import get_secret, lambda_handler
 
 mock_event = {
+    "headers": {
+        #Actualizar token con uno que sea valido y no este expirado para ejecutar las pruebas unitarias (Access Token)
+        "Authorization": "Bearer "
+    },
     "queryStringParameters": {
         "id_pokemon": "1"
     }
@@ -16,7 +20,7 @@ mock_event = {
 
 class TestApp(unittest.TestCase):
 
-    @patch('boto3.session.Session.client')
+    @patch('get_publication.app.boto3.session.Session.client')
     def test_get_secret_success(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.return_value = {
@@ -147,7 +151,7 @@ class TestApp(unittest.TestCase):
         body = json.loads(result["body"])
         self.assertEqual(body, "Database error: Generic database error")
 
-    @patch('boto3.session.Session.client')
+    @patch('get_publication.app.boto3.session.Session.client')
     def test_get_secret_client_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -161,7 +165,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 404)
         self.assertIn('Secret sionpoKeys not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('get_publication.app.boto3.session.Session.client')
     def test_get_secret_no_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = NoCredentialsError()
@@ -172,7 +176,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('AWS credentials not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('get_publication.app.boto3.session.Session.client')
     def test_get_secret_partial_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = PartialCredentialsError(
@@ -185,7 +189,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('Incomplete AWS credentials', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('get_publication.app.boto3.session.Session.client')
     def test_get_secret_invalid_request_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -199,7 +203,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid request for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('get_publication.app.boto3.session.Session.client')
     def test_get_secret_invalid_parameter_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -213,7 +217,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid parameter for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('get_publication.app.boto3.session.Session.client')
     def test_get_secret_access_denied_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -227,7 +231,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 403)
         self.assertIn('Access denied for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('get_publication.app.boto3.session.Session.client')
     def test_get_secret_unknown_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -241,7 +245,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 500)
         self.assertIn('Error retrieving secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('get_publication.app.boto3.session.Session.client')
     def test_get_secret_general_exception(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = Exception("Unknown error")
@@ -261,7 +265,13 @@ class TestApp(unittest.TestCase):
             'password': 'test_pass'
         }
 
-        event_with_missing_key = {"queryStringParameters": {}}
+        event_with_missing_key = {
+            "headers": {
+                # Actualizar token con uno que sea valido y no este expirado
+                "Authorization": "Bearer "
+            },
+            "queryStringParameters": {},
+        }
         result = lambda_handler(event_with_missing_key, None)
         self.assertEqual(result["statusCode"], 400)
         body = json.loads(result["body"])
@@ -350,3 +360,98 @@ class TestApp(unittest.TestCase):
         self.assertEqual(result["statusCode"], 403)
         body = json.loads(result["body"])
         self.assertEqual(body, "Unknown error")
+
+    @patch('get_publication.app.get_secret')
+    @patch('get_publication.app.pymysql.connect')
+    def test_lambda_handler_missing_auth_header(self, mock_connect, mock_get_secret):
+        event_missing = {
+            "headers": {}
+        }
+        context = {}
+
+        response = lambda_handler(event_missing, context)
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertIn("Authorization header is missing", response["body"])
+
+    @patch('get_publication.app.get_secret')
+    @patch('get_publication.app.pymysql.connect')
+    def test_lambda_handler_invalid_auth_header(self, mock_connect, mock_get_secret):
+        event_invalid = {
+            "headers": {
+                "Authorization": "Invalid token"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid, context)
+
+        self.assertEqual(response['statusCode'], 400)
+        self.assertIn('Authorization header must start with \'Bearer \'', response['body'])
+
+    @patch('get_publication.app.get_secret')
+    @patch('get_publication.app.pymysql.connect')
+    def test_lambda_handler_invalid_token(self, mock_connect, mock_get_secret):
+        event_invalid = {
+            "headers": {
+                "Authorization": "Bearer invalid_token"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid, context)
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertIn("Invalid token", response["body"])
+
+    @patch('get_publication.app.get_secret')
+    @patch('get_publication.app.pymysql.connect')
+    def test_lambda_handler_invalid_audience_token(self, mock_connect, mock_get_secret):
+        event_invalid_audience = {
+            "headers": {
+                # Actualizar con un token valido, que no haya expirado (Id token)
+                "Authorization": "Bearer "
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid_audience, context)
+
+        self.assertEqual(response["statusCode"], 401)
+        self.assertIn("Invalid token: Invalid audience", response["body"])
+
+    @patch('get_publication.app.get_secret')
+    @patch('get_publication.app.pymysql.connect')
+    def test_lambda_handler_expired_token(self, mock_connect, mock_get_secret):
+        event_expired_token = {
+            "headers": {
+                # Actualizar con un token valido y que haya expirado (Access token)
+                "Authorization": "Bearer "
+            },
+            "queryStringParameters": {
+                "id_pokemon": "1"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_expired_token, context)
+        print(response)
+
+        self.assertEqual(response["statusCode"], 401)
+        self.assertIn("Token has expired", response["body"])
+
+    @patch('get_publication.app.get_secret')
+    @patch('get_publication.app.pymysql.connect')
+    def test_lambda_handler_invalid_permits(self, mock_connect, mock_get_secret):
+        event_token = {
+            "headers": {
+                # Actualizar con un token que no contenga los roles permitidos (Access Token)
+                "Authorization": "Bearer "
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_token, context)
+
+        self.assertEqual(response["statusCode"], 403)
+        self.assertIn("Access Denied: Insufficient permits", response["body"])
