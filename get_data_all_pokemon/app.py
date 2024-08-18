@@ -97,7 +97,8 @@ def lambda_handler(event, context):
 
             header = jwt.get_unverified_header(token)
             key = next(key for key in public_keys if key['kid'] == header['kid'])
-            public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key))
+            rsa_algorithm = algorithms.get_default_algorithms()["RS256"]
+            public_key = rsa_algorithm.from_jwk(json.dumps(key))
 
             decoded_token = jwt.decode(token, key=public_key, algorithms=["RS256"])
 
