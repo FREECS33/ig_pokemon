@@ -2,8 +2,7 @@ import json
 import pymysql
 import boto3
 import jwt
-from jwt import algorithms
-import requests
+from jwt import PyJWKClient
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
 
@@ -68,11 +67,7 @@ def get_secret():
         })
 
 
-def get_public_keys():
-    keys_url = "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_NDXZOG7DQ/.well-known/jwks.json"
-    response = requests.get(keys_url)
-    response.raise_for_status()
-    return response.json()["keys"]
+keys_url = "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_NDXZOG7DQ/.well-known/jwks.json"
 
 
 def lambda_handler(event, context):
@@ -93,12 +88,9 @@ def lambda_handler(event, context):
 
             token = auth_header.split(' ')[1]
 
-            public_keys = get_public_keys()
+            jwt_client = PyJWKClient(keys_url)
 
-            header = jwt.get_unverified_header(token)
-            key = next(key for key in public_keys if key['kid'] == header['kid'])
-            rsa_algorithm = algorithms.get_default_algorithms()["RS256"]
-            public_key = rsa_algorithm.from_jwk(json.dumps(key))
+            public_key = jwt_client.get_signing_key_from_jwt(token)
 
             decoded_token = jwt.decode(token, key=public_key, algorithms=["RS256"])
 
