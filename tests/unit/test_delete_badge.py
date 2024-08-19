@@ -9,13 +9,17 @@ from pymysql import MySQLError
 from delete_badges.app import get_secret, lambda_handler
 
 mock_body = {
+    "headers": {
+        #Actualizar con un token valido y no expirado (Acces token)
+        "Authorization": "Bearer "
+    },
     "body": json.dumps({"id_badge": 1})
 }
 
 
 class TestDeleteBadge(unittest.TestCase):
 
-    @patch('boto3.session.Session.client')
+    @patch('delete_badges.app.boto3.session.Session.client')
     def test_get_secret_success(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.return_value = {
@@ -60,6 +64,10 @@ class TestDeleteBadge(unittest.TestCase):
         }
 
         event = {
+            "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
+                "Authorization": "Bearer "
+            },
             'body': json.dumps({
                 'some_other_key': 'some_value'
             })
@@ -73,10 +81,13 @@ class TestDeleteBadge(unittest.TestCase):
         body = json.loads(response['body'])
         self.assertEqual(body['message'], "Missing id_badge in request body")
 
-
     @patch("delete_badges.app.get_secret")
     def test_lambda_handler_invalid_body(self, mock_get_secret):
         event = {
+            "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
+                "Authorization": "Bearer "
+            },
             "body": "This is not a valid JSON"
         }
         response = lambda_handler(event, None)
@@ -204,6 +215,10 @@ class TestDeleteBadge(unittest.TestCase):
         mock_connect.side_effect = pymysql.MySQLError("Database error")
 
         event = {
+            "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
+                "Authorization": "Bearer "
+            },
             'body': json.dumps({
                 'id_badge': '123'
             })
@@ -216,7 +231,7 @@ class TestDeleteBadge(unittest.TestCase):
         body = json.loads(response['body'])
         self.assertIn("Database connection error: Database error", body['error'])
 
-    @patch('boto3.session.Session.client')
+    @patch('delete_badges.app.boto3.session.Session.client')
     def test_get_secret_client_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -230,7 +245,7 @@ class TestDeleteBadge(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 404)
         self.assertIn('Secret sionpoKeys not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('delete_badges.app.boto3.session.Session.client')
     def test_get_secret_no_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = NoCredentialsError()
@@ -241,7 +256,7 @@ class TestDeleteBadge(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('AWS credentials not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('delete_badges.app.boto3.session.Session.client')
     def test_get_secret_partial_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = PartialCredentialsError(
@@ -254,7 +269,7 @@ class TestDeleteBadge(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('Incomplete AWS credentials', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('delete_badges.app.boto3.session.Session.client')
     def test_get_secret_invalid_request_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -268,7 +283,7 @@ class TestDeleteBadge(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid request for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('delete_badges.app.boto3.session.Session.client')
     def test_get_secret_invalid_parameter_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -282,7 +297,7 @@ class TestDeleteBadge(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid parameter for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('delete_badges.app.boto3.session.Session.client')
     def test_get_secret_access_denied_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -296,7 +311,7 @@ class TestDeleteBadge(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 403)
         self.assertIn('Access denied for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('delete_badges.app.boto3.session.Session.client')
     def test_get_secret_unknown_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -310,7 +325,7 @@ class TestDeleteBadge(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 500)
         self.assertIn('Error retrieving secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('delete_badges.app.boto3.session.Session.client')
     def test_get_secret_general_exception(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = Exception("Unknown error")
@@ -320,3 +335,97 @@ class TestDeleteBadge(unittest.TestCase):
 
         self.assertEqual(context.exception.args[0]['statusCode'], 500)
         self.assertIn('Unknown error: Unknown error', context.exception.args[0]['body'])
+
+    @patch('delete_badges.app.get_secret')
+    @patch('delete_badges.app.pymysql.connect')
+    def test_lambda_handler_missing_auth_header(self, mock_connect, mock_get_secret):
+        event_missing = {
+            "headers": {}
+        }
+        context = {}
+
+        response = lambda_handler(event_missing, context)
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertIn("Authorization header is missing", response["body"])
+
+    @patch('delete_badges.app.get_secret')
+    @patch('delete_badges.app.pymysql.connect')
+    def test_lambda_handler_invalid_auth_header(self, mock_connect, mock_get_secret):
+        event_invalid = {
+            "headers": {
+                "Authorization": "Invalid token"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid, context)
+
+        self.assertEqual(response['statusCode'], 400)
+        self.assertIn('Authorization header must start with \'Bearer \'', response['body'])
+
+    @patch('delete_badges.app.get_secret')
+    @patch('delete_badges.app.pymysql.connect')
+    def test_lambda_handler_invalid_token(self, mock_connect, mock_get_secret):
+        event_invalid = {
+            "headers": {
+                "Authorization": "Bearer invalid_token"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid, context)
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertIn("Invalid token", response["body"])
+
+    @patch('delete_badges.app.get_secret')
+    @patch('delete_badges.app.pymysql.connect')
+    def test_lambda_handler_invalid_audience_token(self, mock_connect, mock_get_secret):
+        event_invalid_audience = {
+            "headers": {
+                # Actualizar con un token valido, que no haya expirado (Id token)
+                "Authorization": "Bearer "
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid_audience, context)
+
+        self.assertEqual(response["statusCode"], 401)
+        self.assertIn("Invalid token: Invalid audience", response["body"])
+
+    @patch('delete_badges.app.get_secret')
+    @patch('delete_badges.app.pymysql.connect')
+    def test_lambda_handler_expired_token(self, mock_connect, mock_get_secret):
+        event_expired_token = {
+            "headers": {
+                # Actualizar con un token valido y que haya expirado (Access token)
+                "Authorization": "Bearer "
+            },
+            "queryStringParameters": {
+                "id_pokemon": "1"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_expired_token, context)
+
+        self.assertEqual(response["statusCode"], 401)
+        self.assertIn("Token has expired", response["body"])
+
+    @patch('delete_badges.app.get_secret')
+    @patch('delete_badges.app.pymysql.connect')
+    def test_lambda_handler_invalid_permits(self, mock_connect, mock_get_secret):
+        event_token = {
+            "headers": {
+                # Actualizar con un token que no contenga los roles permitidos (Access Token)
+                "Authorization": "Bearer "
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_token, context)
+
+        self.assertEqual(response["statusCode"], 403)
+        self.assertIn("Access Denied: Insufficient permits", response["body"])
