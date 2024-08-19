@@ -1,3 +1,27 @@
+# El BACKEND del proyecto
+# Este repositorio contiene el código fuente de la API para el proyecto.
+## Última Versión
+
+La última versión del proyecto está disponible en la rama `develop`.
+
+Si estás buscando la versión más reciente publicada, puedes encontrarla [aquí](https://github.com/FREECS33/ig_pokemon).
+
+
+
+
+## ¡IMPORTANTE!
+
+PARA EL CORRECTO FUNCIONAMIENTO DE LAS PRUEBAS UNITARIASS
+
+AL MOMENTO DE EJECUTAR, SE DEBEN CAMBIAR LOS TOKENS COMO SE INDICA
+
+SE INDICA EN CADA ARCHIVO DE LAS MISMAS
+ 
+
+
+
+
+
 # pokemon_ig
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
