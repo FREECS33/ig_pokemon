@@ -80,6 +80,7 @@ class TestPostPublication(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
               "Authorization": "Bearer "
             },
             "body": json.dumps({
@@ -105,6 +106,7 @@ class TestPostPublication(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             "body": "invalid json"
@@ -128,6 +130,7 @@ class TestPostPublication(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             "body": json.dumps({
@@ -163,6 +166,7 @@ class TestPostPublication(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             "body": json.dumps({

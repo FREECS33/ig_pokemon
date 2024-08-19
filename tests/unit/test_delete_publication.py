@@ -9,6 +9,7 @@ from delete_publication.app import get_secret, lambda_handler
 
 mock_body = {
     "headers": {
+        #Actualizar con un token valido y no expirado (Acces token)
         "Authorization": "Bearer "
     },
     "body": json.dumps({"id_pokemon": 1})
@@ -68,6 +69,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             "body": json.dumps({})
@@ -90,6 +92,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             "body": "invalid-json"
