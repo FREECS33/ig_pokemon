@@ -8,6 +8,10 @@ from botocore.exceptions import ClientError, NoCredentialsError, PartialCredenti
 from post_badges.app import get_secret, lambda_handler
 
 mock_body = {
+    "headers": {
+        #Actualizar con un token valido y no expirado (Acces token)
+        "Authorization": "Bearer eyJraWQiOiI1YW9nb3RzZk9PTFF1Mm1JNzJOVEV3VnRqZmJqUWFpUzE2d2pPT25kTkVzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3MTBiYjVlMC01MGQxLTcwZTQtNTY3OS1hMzlkMWIxYjUyZWIiLCJjb2duaXRvOmdyb3VwcyI6WyJ1c2VyIl0sImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy1lYXN0LTIuYW1hem9uYXdzLmNvbVwvdXMtZWFzdC0yX05EWFpPRzdEUSIsImNsaWVudF9pZCI6IjVzNWMxb2Zwa3EzMGdrYnQ2MXExaGRpY2ZkIiwib3JpZ2luX2p0aSI6ImMxYWYxMjAxLTA0MWQtNDg0YS1iNzg5LTlhMTY0NGQ0MTdmNyIsImV2ZW50X2lkIjoiOTU5OTlmMjEtNTBmMi00YmEwLTliMGItYzAwNjcwNTNiYzZkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTcyNDA4ODQxMiwiZXhwIjoxNzI0MDkyMDEyLCJpYXQiOjE3MjQwODg0MTIsImp0aSI6ImVkNGUwNGY3LWVkYmMtNGI0NS04YzEzLTg2ZmFkODY2NTQ0MCIsInVzZXJuYW1lIjoic2VyaW8ifQ.PDvg5Zxg0N97KUE6KjcPCDxLOm8-y3AaveEa0T_wBB_SWBrxpB66w4rxRgV1vz6LlBfbF6iokdgiOAYMmLtFktVvWTqVAI32-2l1nqhk8BlMP0UFgPuQyAGxBZwx_W8ajffU74qm0nKdNdROzNdlm4lyznA8cBZvCfPJt7DjVQHZCzTViYz8Kq10FEbdKL9ewxDUpXgcMia2LKyI0nERJeFLrS-EK8JkPLZb-rVpDHWW938og6c6GMOb9aO3LAFOcMK9q301J9_qWTdgad4zULObTchtqsusqbxyxI5lPhpFeBp8Snunsjay7NcBn1f3SAayutNfPCyXYIJG50vaDw"
+    },
     "body": json.dumps({
         "badge_name": "test_badge",
         "description": "test_description",
@@ -20,7 +24,7 @@ mock_body = {
 
 class TestPostBadges(unittest.TestCase):
 
-    @patch('boto3.session.Session.client')
+    @patch('post_badges.app.boto3.session.Session.client')
     def test_get_secret_success(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.return_value = {
@@ -74,6 +78,10 @@ class TestPostBadges(unittest.TestCase):
         }
 
         event = {
+            "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
+                "Authorization": "Bearer eyJraWQiOiI1YW9nb3RzZk9PTFF1Mm1JNzJOVEV3VnRqZmJqUWFpUzE2d2pPT25kTkVzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3MTBiYjVlMC01MGQxLTcwZTQtNTY3OS1hMzlkMWIxYjUyZWIiLCJjb2duaXRvOmdyb3VwcyI6WyJ1c2VyIl0sImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy1lYXN0LTIuYW1hem9uYXdzLmNvbVwvdXMtZWFzdC0yX05EWFpPRzdEUSIsImNsaWVudF9pZCI6IjVzNWMxb2Zwa3EzMGdrYnQ2MXExaGRpY2ZkIiwib3JpZ2luX2p0aSI6ImMxYWYxMjAxLTA0MWQtNDg0YS1iNzg5LTlhMTY0NGQ0MTdmNyIsImV2ZW50X2lkIjoiOTU5OTlmMjEtNTBmMi00YmEwLTliMGItYzAwNjcwNTNiYzZkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTcyNDA4ODQxMiwiZXhwIjoxNzI0MDkyMDEyLCJpYXQiOjE3MjQwODg0MTIsImp0aSI6ImVkNGUwNGY3LWVkYmMtNGI0NS04YzEzLTg2ZmFkODY2NTQ0MCIsInVzZXJuYW1lIjoic2VyaW8ifQ.PDvg5Zxg0N97KUE6KjcPCDxLOm8-y3AaveEa0T_wBB_SWBrxpB66w4rxRgV1vz6LlBfbF6iokdgiOAYMmLtFktVvWTqVAI32-2l1nqhk8BlMP0UFgPuQyAGxBZwx_W8ajffU74qm0nKdNdROzNdlm4lyznA8cBZvCfPJt7DjVQHZCzTViYz8Kq10FEbdKL9ewxDUpXgcMia2LKyI0nERJeFLrS-EK8JkPLZb-rVpDHWW938og6c6GMOb9aO3LAFOcMK9q301J9_qWTdgad4zULObTchtqsusqbxyxI5lPhpFeBp8Snunsjay7NcBn1f3SAayutNfPCyXYIJG50vaDw"
+            },
             "body": json.dumps({
                 "badge_name": "Example Badge"
             })
@@ -95,6 +103,10 @@ class TestPostBadges(unittest.TestCase):
         }
 
         event = {
+            "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
+                "Authorization": "Bearer eyJraWQiOiI1YW9nb3RzZk9PTFF1Mm1JNzJOVEV3VnRqZmJqUWFpUzE2d2pPT25kTkVzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3MTBiYjVlMC01MGQxLTcwZTQtNTY3OS1hMzlkMWIxYjUyZWIiLCJjb2duaXRvOmdyb3VwcyI6WyJ1c2VyIl0sImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy1lYXN0LTIuYW1hem9uYXdzLmNvbVwvdXMtZWFzdC0yX05EWFpPRzdEUSIsImNsaWVudF9pZCI6IjVzNWMxb2Zwa3EzMGdrYnQ2MXExaGRpY2ZkIiwib3JpZ2luX2p0aSI6ImMxYWYxMjAxLTA0MWQtNDg0YS1iNzg5LTlhMTY0NGQ0MTdmNyIsImV2ZW50X2lkIjoiOTU5OTlmMjEtNTBmMi00YmEwLTliMGItYzAwNjcwNTNiYzZkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTcyNDA4ODQxMiwiZXhwIjoxNzI0MDkyMDEyLCJpYXQiOjE3MjQwODg0MTIsImp0aSI6ImVkNGUwNGY3LWVkYmMtNGI0NS04YzEzLTg2ZmFkODY2NTQ0MCIsInVzZXJuYW1lIjoic2VyaW8ifQ.PDvg5Zxg0N97KUE6KjcPCDxLOm8-y3AaveEa0T_wBB_SWBrxpB66w4rxRgV1vz6LlBfbF6iokdgiOAYMmLtFktVvWTqVAI32-2l1nqhk8BlMP0UFgPuQyAGxBZwx_W8ajffU74qm0nKdNdROzNdlm4lyznA8cBZvCfPJt7DjVQHZCzTViYz8Kq10FEbdKL9ewxDUpXgcMia2LKyI0nERJeFLrS-EK8JkPLZb-rVpDHWW938og6c6GMOb9aO3LAFOcMK9q301J9_qWTdgad4zULObTchtqsusqbxyxI5lPhpFeBp8Snunsjay7NcBn1f3SAayutNfPCyXYIJG50vaDw"
+            },
             "body": "invalid-json"
         }
         context = {}
@@ -163,7 +175,7 @@ class TestPostBadges(unittest.TestCase):
         response_body = json.loads(response['body'])
         self.assertIn("Insert failed", response_body["message"])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_badges.app.boto3.session.Session.client')
     def test_get_secret_client_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -177,7 +189,7 @@ class TestPostBadges(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 404)
         self.assertIn('Secret sionpoKeys not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_badges.app.boto3.session.Session.client')
     def test_get_secret_no_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = NoCredentialsError()
@@ -188,7 +200,7 @@ class TestPostBadges(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('AWS credentials not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_badges.app.boto3.session.Session.client')
     def test_get_secret_partial_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = PartialCredentialsError(
@@ -201,7 +213,7 @@ class TestPostBadges(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('Incomplete AWS credentials', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_badges.app.boto3.session.Session.client')
     def test_get_secret_invalid_request_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -215,7 +227,7 @@ class TestPostBadges(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid request for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_badges.app.boto3.session.Session.client')
     def test_get_secret_invalid_parameter_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -229,7 +241,7 @@ class TestPostBadges(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid parameter for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_badges.app.boto3.session.Session.client')
     def test_get_secret_access_denied_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -243,7 +255,7 @@ class TestPostBadges(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 403)
         self.assertIn('Access denied for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_badges.app.boto3.session.Session.client')
     def test_get_secret_unknown_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -257,7 +269,7 @@ class TestPostBadges(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 500)
         self.assertIn('Error retrieving secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_badges.app.boto3.session.Session.client')
     def test_get_secret_general_exception(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = Exception("Unknown error")
@@ -267,3 +279,97 @@ class TestPostBadges(unittest.TestCase):
 
         self.assertEqual(context.exception.args[0]['statusCode'], 500)
         self.assertIn('Unknown error: Unknown error', context.exception.args[0]['body'])
+
+    @patch('post_badges.app.get_secret')
+    @patch('post_badges.app.pymysql.connect')
+    def test_lambda_handler_missing_auth_header(self, mock_connect, mock_get_secret):
+        event_missing = {
+            "headers": {}
+        }
+        context = {}
+
+        response = lambda_handler(event_missing, context)
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertIn("Authorization header is missing", response["body"])
+
+    @patch('post_badges.app.get_secret')
+    @patch('post_badges.app.pymysql.connect')
+    def test_lambda_handler_invalid_auth_header(self, mock_connect, mock_get_secret):
+        event_invalid = {
+            "headers": {
+                "Authorization": "Invalid token"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid, context)
+
+        self.assertEqual(response['statusCode'], 400)
+        self.assertIn('Authorization header must start with \'Bearer \'', response['body'])
+
+    @patch('post_badges.app.get_secret')
+    @patch('post_badges.app.pymysql.connect')
+    def test_lambda_handler_invalid_token(self, mock_connect, mock_get_secret):
+        event_invalid = {
+            "headers": {
+                "Authorization": "Bearer invalid_token"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid, context)
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertIn("Invalid token", response["body"])
+
+    @patch('post_badges.app.get_secret')
+    @patch('post_badges.app.pymysql.connect')
+    def test_lambda_handler_invalid_audience_token(self, mock_connect, mock_get_secret):
+        event_invalid_audience = {
+            "headers": {
+                # Actualizar con un token valido, que no haya expirado (Id token)
+                "Authorization": "Bearer "
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid_audience, context)
+
+        self.assertEqual(response["statusCode"], 401)
+        self.assertIn("Invalid token: Invalid audience", response["body"])
+
+    @patch('post_badges.app.get_secret')
+    @patch('post_badges.app.pymysql.connect')
+    def test_lambda_handler_expired_token(self, mock_connect, mock_get_secret):
+        event_expired_token = {
+            "headers": {
+                # Actualizar con un token valido y que haya expirado (Access token)
+                "Authorization": "Bearer "
+            },
+            "queryStringParameters": {
+                "id_pokemon": "1"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_expired_token, context)
+
+        self.assertEqual(response["statusCode"], 401)
+        self.assertIn("Token has expired", response["body"])
+
+    @patch('post_badges.app.get_secret')
+    @patch('post_badges.app.pymysql.connect')
+    def test_lambda_handler_invalid_permits(self, mock_connect, mock_get_secret):
+        event_token = {
+            "headers": {
+                # Actualizar con un token que no contenga los roles permitidos (Access Token)
+                "Authorization": "Bearer "
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_token, context)
+
+        self.assertEqual(response["statusCode"], 403)
+        self.assertIn("Access Denied: Insufficient permits", response["body"])

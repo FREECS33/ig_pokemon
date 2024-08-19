@@ -1,6 +1,8 @@
 import json
 import pymysql
 import boto3
+import jwt
+from jwt import PyJWKClient
 from botocore.exceptions import ClientError, NoCredentialsError, PartialCredentialsError
 
 
@@ -66,7 +68,89 @@ def get_secret():
         })
 
 
+keys_url = "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_NDXZOG7DQ/.well-known/jwks.json"
+
+
 def lambda_handler(event, context):
+    try:
+        if "headers" not in event or "Authorization" not in event["headers"]:
+            return {
+                "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
+                "body": json.dumps("Authorization header is missing")
+            }
+        auth_header = event["headers"]["Authorization"]
+
+        if not auth_header.startswith("Bearer "):
+            return {
+                "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
+                "body": json.dumps("Authorization header must start with 'Bearer '")
+            }
+
+        token = auth_header.split(' ')[1]
+
+        jwt_client = PyJWKClient(keys_url)
+
+        public_key = jwt_client.get_signing_key_from_jwt(token)
+
+        decoded_token = jwt.decode(token, key=public_key, algorithms=["RS256"])
+
+        user_groups = decoded_token.get('cognito:groups', [])
+
+        if "user" not in user_groups:
+            return {
+                "statusCode": 403,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
+                "body": json.dumps("Access Denied: Insufficient permits")
+            }
+    except jwt.DecodeError:
+        return {
+            "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
+            "body": json.dumps("Invalid token")
+        }
+    except jwt.ExpiredSignatureError:
+        return {
+            "statusCode": 401,
+            "body": json.dumps("Token has expired")
+        }
+    except jwt.InvalidTokenError as e:
+        return {
+            "statusCode": 401,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
+            "body": json.dumps(f"Invalid token: {str(e)}")
+        }
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
+            "body": json.dumps(f"Internal server error: {str(e)}")
+        }
     try:
         body = json.loads(event['body'])
         required_fields = ['badge_name', 'description', 'standard_to_get', 'date_earned', 'image']
