@@ -140,16 +140,31 @@ def lambda_handler(event, context):
         if likes_count < 0:
             return {
                 "statusCode": 422,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps({"message": "likes_count cannot be negative"})
             }
         if dislikes_count < 0:
             return {
                 "statusCode": 422,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps({"message": "likes_count cannot be negative"})
             }
     except (json.JSONDecodeError, ValueError) as error:
         return {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"message": str(error)})
         }
     try:
@@ -157,6 +172,7 @@ def lambda_handler(event, context):
     except Exception as error:
         return {
             "statusCode": 500,
+
             "body": json.dumps({"message": str(error)})
         }
     host = secrets['host']
@@ -174,6 +190,11 @@ def lambda_handler(event, context):
     except pymysql.MySQLError as error:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(str(error))
         }
 
@@ -199,7 +220,7 @@ def lambda_handler(event, context):
             "statusCode": 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type,Authorization'
             },
             "body": json.dumps({"message": "Pokemon created successfully"})
@@ -209,6 +230,11 @@ def lambda_handler(event, context):
 
         response = {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(str(error))
         }
 

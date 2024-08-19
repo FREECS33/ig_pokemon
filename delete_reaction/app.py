@@ -71,12 +71,20 @@ def lambda_handler(event, context):
         if 'id_interaction' not in body:
             return {
                 "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                },
                 "body": json.dumps({"error": "Missing id_interaction in request body"})
             }
         id_interaction = body['id_interaction']
     except (json.JSONDecodeError, ValueError) as e:
         return {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"error": str(e)})
         }
     try:
@@ -84,6 +92,11 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"error": str(e)})
         }
     host = secrets['host']
@@ -101,6 +114,11 @@ def lambda_handler(event, context):
     except pymysql.OperationalError as e:
         return {
             "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"error": str(e)})
         }
     try:
@@ -113,18 +131,28 @@ def lambda_handler(event, context):
                 connection.rollback()
                 return {
                     "statusCode": 400,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"error": "Error deleting interaction table"})
                 }
             if (rows_affected_interaction == 0):
                 return {
                     "statusCode": 404,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"error": "Interaction not found"})
                 }
             response = {
                 "statusCode": 200,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
                     'Access-Control-Allow-Headers': 'Content-Type,Authorization'
                 },
                 "body": json.dumps({"message": "Interaction deleted successfully"})
@@ -133,11 +161,21 @@ def lambda_handler(event, context):
     except pymysql.MySQLError as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"error": "Database error"})
         }
 
     except Exception as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"error": "An unexpected error occurred"})
         }

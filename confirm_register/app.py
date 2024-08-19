@@ -100,7 +100,7 @@ def lambda_handler(event, context):
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type,Authorization'
             },
             'body': json.dumps({'message': 'User account confirmed successfully'})
@@ -108,6 +108,11 @@ def lambda_handler(event, context):
     except KeyError as e:
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             'body': json.dumps({'error': f'Missing parameter: {str(e)}'})
         }
     except ClientError as e:
@@ -115,20 +120,40 @@ def lambda_handler(event, context):
         error_message = e.response['Error']['Message']
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             'body': json.dumps({'error': f'{error_code}: {error_message}'})
         }
     except NoCredentialsError:
         return {
             'statusCode': 401,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             'body': json.dumps({'error': 'AWS credentials not found'})
         }
     except PartialCredentialsError:
         return {
             'statusCode': 401,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             'body': json.dumps({'error': 'Incomplete AWS credentials'})
         }
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             'body': json.dumps({'error': f'Internal server error: {str(e)}'})
         }

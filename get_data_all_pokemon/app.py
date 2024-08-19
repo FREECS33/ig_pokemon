@@ -76,6 +76,7 @@ def lambda_handler(event, context):
             if "headers" not in event or "Authorization" not in event["headers"]:
                 return {
                     "statusCode": 400,
+
                     "body": json.dumps("Authorization header is missing")
                 }
             auth_header = event["headers"]["Authorization"]
@@ -99,26 +100,51 @@ def lambda_handler(event, context):
             if "user" not in user_groups and "mod" not in user_groups:
                 return {
                     "statusCode": 403,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps("Access Denied: Insufficient permits")
                 }
         except jwt.DecodeError:
             return {
                 "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps("Invalid token")
             }
         except jwt.ExpiredSignatureError:
             return {
                 "statusCode": 401,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps("Token has expired")
             }
         except jwt.InvalidTokenError as e:
             return {
                 "statusCode": 401,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps(f"Invalid token: {str(e)}")
             }
         except Exception as e:
             return {
                 "statusCode": 500,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps(f"Internal server error: {str(e)}")
             }
 
@@ -132,6 +158,11 @@ def lambda_handler(event, context):
         if not all([host, name, password]):
             raise Exception({
                 "statusCode": 500,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": "One or more secrets are missing"
             })
 
@@ -168,7 +199,7 @@ def lambda_handler(event, context):
                     "statusCode": 200,
                     'headers': {
                         'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
                         'Access-Control-Allow-Headers': 'Content-Type,Authorization'
                     },
                     "body": json.dumps(result, default=str)
@@ -176,6 +207,11 @@ def lambda_handler(event, context):
             except Exception as e:
                 response = {
                     "statusCode": 500,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": f"Query execution error: {str(e)}"
                 }
             finally:
@@ -185,21 +221,41 @@ def lambda_handler(event, context):
             if error_code == 2003:
                 response = {
                     "statusCode": 503,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": "Cannot connect to database server"
                 }
             elif error_code == 1045:
                 response = {
                     "statusCode": 401,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": "Authentication error: Incorrect username or password"
                 }
             elif error_code == 1049:
                 response = {
                     "statusCode": 404,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": "Database not found"
                 }
             else:
                 response = {
                     "statusCode": 500,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": f"Database connection error: {str(error)}"
                 }
     except Exception as e:
@@ -208,6 +264,11 @@ def lambda_handler(event, context):
         else:
             response = {
                 "statusCode": 500,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": f"Error: {str(e)}"
             }
 

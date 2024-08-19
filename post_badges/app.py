@@ -61,6 +61,7 @@ def get_secret():
     except Exception as e:
         raise Exception({
             "statusCode": 500,
+
             "body": f"Unknown error: {str(e)}"
         })
 
@@ -82,6 +83,11 @@ def lambda_handler(event, context):
     except (json.JSONDecodeError, ValueError) as error:
         return {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"message": str(error)})
         }
 
@@ -90,6 +96,11 @@ def lambda_handler(event, context):
     except Exception as error:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"message": str(error)})
         }
 
@@ -109,6 +120,11 @@ def lambda_handler(event, context):
     except pymysql.MySQLError as error:
         return {
             "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"message": str(error)})
         }
 
@@ -133,7 +149,7 @@ def lambda_handler(event, context):
                 "statusCode": 200,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
                     'Access-Control-Allow-Headers': 'Content-Type,Authorization'
                 },
                 "body": json.dumps({"badges": result})
@@ -142,6 +158,11 @@ def lambda_handler(event, context):
     except pymysql.MySQLError as error:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"message": str(error)})
         }
     finally:

@@ -75,6 +75,11 @@ def lambda_handler(event, context):
     if "user" not in user_groups and "mod" not in user_groups:
         raise Exception({
             "statusCode": 403,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps("Access Denied: Insufficient permits")
         })
 
@@ -83,12 +88,22 @@ def lambda_handler(event, context):
         if "id_pokemon" not in body:
             return {
                 "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps({"message": "Missing id_pokemon in body"})
             }
         id_pokemon = body['id_pokemon']
     except (json.JSONDecodeError, ValueError) as e:
         return {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"message": str(e)})
         }
 
@@ -97,6 +112,11 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"message": str(e)})
         }
 
@@ -115,6 +135,9 @@ def lambda_handler(event, context):
     except pymysql.OperationalError as e:
         return {
             "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+            },
             "body": json.dumps({"message": str(e)})
         }
 
@@ -128,11 +151,21 @@ def lambda_handler(event, context):
                 connection.rollback()
                 return {
                     "statusCode": 400,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"message": str(e)})
                 }
             if rows_affected_publications == 0:
                 return {
                     "statusCode": 404,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"message": "Pokemon not found"})
                 }
             response = {
@@ -149,12 +182,22 @@ def lambda_handler(event, context):
     except pymysql.MySQLError as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"error": "Database error"})
         }
 
     except Exception as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"error": "An unexpected error occurred"})
         }
     finally:
