@@ -36,8 +36,6 @@ jobs:
           pip install -r confirm_register/requirements.txt
           pip install -r delete_reaction/requirements.txt
           pip install -r login/requirements.txt
-          pip install -r get_all_users/requirements.txt
-          pip install -r delete_user/requirements.txt
           pip install -r get_user_by_email/requirements.txt
           pip install -r get_user_by_id/requirements.txt
 
@@ -78,8 +76,6 @@ jobs:
           pip install -r confirm_register/requirements.txt
           pip install -r delete_reaction/requirements.txt
           pip install -r login/requirements.txt
-          pip install -r get_all_users/requirements.txt
-          pip install -r delete_user/requirements.txt
           pip install -r get_user_by_email/requirements.txt
           pip install -r get_user_by_id/requirements.txt
 
