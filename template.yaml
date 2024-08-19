@@ -327,23 +327,6 @@ Resources:
             Path: /login
             Method: post
 
-  GetAllUsersFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: get_all_users/
-      Handler: app.lambda_handler
-      Runtime: python3.12
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
-      Events:
-        GetAllUsers:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ServerlessRestApi
-            Path: /get_all_users
-            Method: get
-
   GetUserByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -377,24 +360,6 @@ Resources:
             RestApiId: !Ref ServerlessRestApi
             Path: /get_user_by_email
             Method: post
-
-
-  DeleteUserFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: delete_user/
-      Handler: app.lambda_handler
-      Runtime: python3.12
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
-      Events:
-        DeleteUser:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ServerlessRestApi
-            Path: /delete_user
-            Method: delete
 
 Outputs:
 
@@ -463,14 +428,6 @@ Outputs:
     Description: "API Gateway endpoint URL for Login function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login/"
 
-  GetAllUsersApi:
-    Description: "API Gateway endpoint URL for GetAllUsers function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_all_users/"
-
-  DeleteUserApi:
-    Description: "API Gateway endpoint URL for DeleteUser function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/delete_user/"
-
   GetUserByIdApi:
     Description: "API Gateway endpoint URL for GetUserById function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_user_by_id/"
@@ -483,9 +440,6 @@ Outputs:
     Description: "Get User By Email Lambda Function ARN"
     Value: !GetAtt GetUserByEmailFunction.Arn
 
-  GetAllUsersFunction:
-    Description: "Get All Users Lambda Function ARN"
-    Value: !GetAtt GetAllUsersFunction.Arn
 
   GetPokemonFunction:
     Description: "Get Pokemon Lambda Function ARN"
@@ -538,7 +492,3 @@ Outputs:
   GetUserByIdFunction:
     Description: "Get user by id Lambda Function ARN"
     Value: !GetAtt GetUserByIdFunction.Arn
-
-  DeleteUserFunction:
-    Description: "Delete User Lambda Function ARN"
-    Value: !GetAtt DeleteUserFunction.Arn
