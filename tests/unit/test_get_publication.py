@@ -435,7 +435,6 @@ class TestApp(unittest.TestCase):
         context = {}
 
         response = lambda_handler(event_expired_token, context)
-        print(response)
 
         self.assertEqual(response["statusCode"], 401)
         self.assertIn("Token has expired", response["body"])
