@@ -84,6 +84,11 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             "statusCode": 403,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Error retrieving secret: {str(e)}")
         }
 
@@ -103,16 +108,31 @@ def lambda_handler(event, context):
     except pymysql.IntegrityError as e:
         return {
             "statusCode": 422,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database integrity error: {str(e)}")
         }
     except pymysql.OperationalError as e:
         return {
             "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database connection error: {str(e)}")
         }
     except pymysql.MySQLError as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database error: {str(e)}")
         }
 
@@ -144,7 +164,7 @@ def lambda_handler(event, context):
                     "statusCode": 200,
                     'headers': {
                         'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                        'Access-Control-Allow-Methods': ' POST, OPTIONS',
                         'Access-Control-Allow-Headers': 'Content-Type,Authorization'
                     },
                     "body": json.dumps(response_data, default=str)
@@ -152,36 +172,66 @@ def lambda_handler(event, context):
             else:
                 response = {
                     "statusCode": 404,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps("User not found")
                 }
 
     except KeyError as e:
         response = {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Missing key in request body: {str(e)}")
         }
 
     except pymysql.IntegrityError as e:
         response = {
             "statusCode": 422,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database integrity error: {str(e)}")
         }
 
     except pymysql.OperationalError as e:
         response = {
             "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database connection error: {str(e)}")
         }
 
     except pymysql.MySQLError as e:
         response = {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database error: {str(e)}")
         }
 
     except Exception as e:
         response = {
             "statusCode": 403,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ' POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(str(e))
         }
 

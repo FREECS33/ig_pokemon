@@ -98,26 +98,51 @@ def lambda_handler(event, context):
         if "user" not in user_groups and "mod" not in user_groups:
             return {
                 "statusCode": 403,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps("Access Denied: Insufficient permits")
             }
     except jwt.DecodeError:
         return {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps("Invalid token")
         }
     except jwt.ExpiredSignatureError:
         return {
             "statusCode": 401,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps("Token has expired")
         }
     except jwt.InvalidTokenError as e:
         return {
             "statusCode": 401,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Invalid token: {str(e)}")
         }
     except Exception as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Internal server error: {str (e)}")
         }
 
@@ -126,6 +151,11 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             "statusCode": 403,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Error retrieving secret: {str(e)}")
         }
 
@@ -145,16 +175,31 @@ def lambda_handler(event, context):
     except pymysql.IntegrityError as e:
         return {
             "statusCode": 422,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database integrity error: {str(e)}")
         }
     except pymysql.OperationalError as e:
         return {
             "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database connection error: {str(e)}")
         }
     except pymysql.MySQLError as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database error: {str(e)}")
         }
 
@@ -174,7 +219,7 @@ def lambda_handler(event, context):
             "statusCode": 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type,Authorization'
             },
             "body": json.dumps(result_dict, default=str)
@@ -183,30 +228,55 @@ def lambda_handler(event, context):
     except KeyError as e:
         response = {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Missing key in request body: {str(e)}")
         }
 
     except pymysql.IntegrityError as e:
         response = {
             "statusCode": 422,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database integrity error: {str(e)}")
         }
 
     except pymysql.OperationalError as e:
         response = {
             "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database connection error: {str(e)}")
         }
 
     except pymysql.MySQLError as e:
         response = {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(f"Database error: {str(e)}")
         }
 
     except Exception as e:
         response = {
             "statusCode": 403,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps(str(e))
         }
 

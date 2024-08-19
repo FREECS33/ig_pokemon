@@ -75,6 +75,11 @@ def lambda_handler(event, context):
     if "user" not in user_groups:
         raise Exception({
             "statusCode": 403,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps("Access Denied: Insufficient permits")
         })
 
@@ -94,6 +99,11 @@ def lambda_handler(event, context):
         if not pokemon_id or not updated_data:
             return {
                 "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps({"message": "Missing id_pokemon or updated_data in request body"})
             }
 
@@ -119,6 +129,11 @@ def lambda_handler(event, context):
                 if cursor.rowcount == 0:
                     response = {
                         "statusCode": 404,
+                        'headers': {
+                            'Access-Control-Allow-Origin': '*',
+                            'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                            'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                        },
                         "body": json.dumps({"message": "Pokemon not found"})
                     }
                 else:
@@ -126,7 +141,7 @@ def lambda_handler(event, context):
                         "statusCode": 200,
                         'headers': {
                             'Access-Control-Allow-Origin': '*',
-                            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                            'Access-Control-Allow-Methods': 'OPTIONS,PUT',
                             'Access-Control-Allow-Headers': 'Content-Type,Authorization'
                         },
                         "body": json.dumps({"message": "Pokemon updated successfully"})
@@ -136,31 +151,61 @@ def lambda_handler(event, context):
             if error_code == 1045:
                 response = {
                     "statusCode": 401,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"message": "Authentication error: Incorrect username or password"})
                 }
             elif error_code == 1049:
                 response = {
                     "statusCode": 404,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"message": "Database not found"})
                 }
             elif error_code == 2003:
                 response = {
                     "statusCode": 503,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"message": "Cannot connect to database server"})
                 }
             elif error_code == 1062:
                 response = {
                     "statusCode": 409,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"message": "Duplicate entry error"})
                 }
             elif error_code == 1406:
                 response = {
                     "statusCode": 413,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"message": "Data too long for column"})
                 }
             else:
                 response = {
                     "statusCode": 500,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"message": f"Database error: {str(error)}"})
                 }
         finally:
@@ -173,6 +218,11 @@ def lambda_handler(event, context):
         else:
             response = {
                 "statusCode": 500,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'OPTIONS,PUT',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                },
                 "body": json.dumps({"message": f"Error: {str(e)}"})
             }
 

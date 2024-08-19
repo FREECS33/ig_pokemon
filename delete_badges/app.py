@@ -71,12 +71,18 @@ def lambda_handler(event, context):
         if "id_badge" not in body:
             return {
                 "statusCode": 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                },
                 "body": json.dumps({"message": "Missing id_badge in request body"})
             }
         id_badge = body["id_badge"]
     except json.JSONDecodeError as e:
         return {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+            },
             "body": json.dumps({"message": f"Invalid JSON: {e}"})
         }
     try:
@@ -84,6 +90,9 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+            },
             "body": json.dumps({"error": str(e)})
         }
 
@@ -103,6 +112,9 @@ def lambda_handler(event, context):
     except pymysql.MySQLError as e:
         return {
             "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+            },
             "body": json.dumps({"error": f"Database connection error: {e}"})
         }
 
@@ -116,6 +128,11 @@ def lambda_handler(event, context):
                 connection.rollback()
                 return {
                     "statusCode": 400,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"error": "Error updating Users table"})
                 }
 
@@ -127,12 +144,22 @@ def lambda_handler(event, context):
                 connection.rollback()
                 return {
                     "statusCode": 400,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"error": "Error deleting badge"})
                 }
 
             if rows_affected_badges == 0:
                 return {
                     "statusCode": 404,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps({"error": "Badge not found"})
                 }
 
@@ -140,7 +167,7 @@ def lambda_handler(event, context):
                 "statusCode": 200,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                    'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
                     'Access-Control-Allow-Headers': 'Content-Type,Authorization'
                 },
                 "body": json.dumps({"message": "Badge deleted successfully"})
@@ -149,10 +176,20 @@ def lambda_handler(event, context):
     except pymysql.MySQLError as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"error": "Database error"})
         }
     except Exception as e:
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,DELETE',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+            },
             "body": json.dumps({"error": "An unexpected error occurred"})
         }
