@@ -8,6 +8,10 @@ from botocore.exceptions import ClientError, NoCredentialsError, PartialCredenti
 from post_publication.app import get_secret, lambda_handler
 
 mock_body = {
+    "headers": {
+        #Actualizar token con uno que sea valido y no este expirado para ejecutar las pruebas unitarias (Access Token)
+        "Authorization": "Bearer "
+    },
     "body": json.dumps({
         "pokemon_name": "Pikachu",
         "abilities": ["Static", "Lightning Rod"],
@@ -26,7 +30,7 @@ mock_body = {
 
 class TestPostPublication(unittest.TestCase):
 
-    @patch('boto3.session.Session.client')
+    @patch('post_publication.app.boto3.session.Session.client')
     def test_get_secret_success(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.return_value = {
@@ -63,9 +67,7 @@ class TestPostPublication(unittest.TestCase):
         response = lambda_handler(event, None)
 
         self.assertEqual(response['statusCode'], 200)
-        response_body = json.loads(response['body'])
-        self.assertIsInstance(response_body, list)
-        self.assertEqual(response_body[0]['pokemon_name'], 'Pikachu')
+        self.assertIn("Pokemon created successfully", response["body"]["message"])
 
     @patch('post_publication.app.get_secret')
     def test_lambda_handler_missing_fields(self, mock_get_secret):
@@ -186,7 +188,7 @@ class TestPostPublication(unittest.TestCase):
         response_body = json.loads(response['body'])
         self.assertEqual(response_body["message"], "Test secret error")
 
-    @patch('boto3.session.Session.client')
+    @patch('post_publication.app.boto3.session.Session.client')
     def test_get_secret_client_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -200,7 +202,7 @@ class TestPostPublication(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 404)
         self.assertIn('Secret sionpoKeys not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_publication.app.boto3.session.Session.client')
     def test_get_secret_no_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = NoCredentialsError()
@@ -211,7 +213,7 @@ class TestPostPublication(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('AWS credentials not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_publication.app.boto3.session.Session.client')
     def test_get_secret_partial_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = PartialCredentialsError(
@@ -224,7 +226,7 @@ class TestPostPublication(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('Incomplete AWS credentials', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_publication.app.boto3.session.Session.client')
     def test_get_secret_invalid_request_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -238,7 +240,7 @@ class TestPostPublication(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid request for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_publication.app.boto3.session.Session.client')
     def test_get_secret_invalid_parameter_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -252,7 +254,7 @@ class TestPostPublication(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid parameter for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_publication.app.boto3.session.Session.client')
     def test_get_secret_access_denied_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -266,7 +268,7 @@ class TestPostPublication(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 403)
         self.assertIn('Access denied for secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_publication.app.boto3.session.Session.client')
     def test_get_secret_unknown_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -280,7 +282,7 @@ class TestPostPublication(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 500)
         self.assertIn('Error retrieving secret sionpoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('post_publication.app.boto3.session.Session.client')
     def test_get_secret_general_exception(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = Exception("Unknown error")
@@ -327,4 +329,3 @@ class TestPostPublication(unittest.TestCase):
         self.assertEqual(result["statusCode"], 500)
         body = json.loads(result["body"])
         self.assertEqual(body, "Generic database error")
-
