@@ -10,7 +10,7 @@ from post_badges.app import get_secret, lambda_handler
 mock_body = {
     "headers": {
         #Actualizar con un token valido y no expirado (Acces token)
-        "Authorization": "Bearer eyJraWQiOiI1YW9nb3RzZk9PTFF1Mm1JNzJOVEV3VnRqZmJqUWFpUzE2d2pPT25kTkVzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3MTBiYjVlMC01MGQxLTcwZTQtNTY3OS1hMzlkMWIxYjUyZWIiLCJjb2duaXRvOmdyb3VwcyI6WyJ1c2VyIl0sImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy1lYXN0LTIuYW1hem9uYXdzLmNvbVwvdXMtZWFzdC0yX05EWFpPRzdEUSIsImNsaWVudF9pZCI6IjVzNWMxb2Zwa3EzMGdrYnQ2MXExaGRpY2ZkIiwib3JpZ2luX2p0aSI6ImMxYWYxMjAxLTA0MWQtNDg0YS1iNzg5LTlhMTY0NGQ0MTdmNyIsImV2ZW50X2lkIjoiOTU5OTlmMjEtNTBmMi00YmEwLTliMGItYzAwNjcwNTNiYzZkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTcyNDA4ODQxMiwiZXhwIjoxNzI0MDkyMDEyLCJpYXQiOjE3MjQwODg0MTIsImp0aSI6ImVkNGUwNGY3LWVkYmMtNGI0NS04YzEzLTg2ZmFkODY2NTQ0MCIsInVzZXJuYW1lIjoic2VyaW8ifQ.PDvg5Zxg0N97KUE6KjcPCDxLOm8-y3AaveEa0T_wBB_SWBrxpB66w4rxRgV1vz6LlBfbF6iokdgiOAYMmLtFktVvWTqVAI32-2l1nqhk8BlMP0UFgPuQyAGxBZwx_W8ajffU74qm0nKdNdROzNdlm4lyznA8cBZvCfPJt7DjVQHZCzTViYz8Kq10FEbdKL9ewxDUpXgcMia2LKyI0nERJeFLrS-EK8JkPLZb-rVpDHWW938og6c6GMOb9aO3LAFOcMK9q301J9_qWTdgad4zULObTchtqsusqbxyxI5lPhpFeBp8Snunsjay7NcBn1f3SAayutNfPCyXYIJG50vaDw"
+        "Authorization": "Bearer "
     },
     "body": json.dumps({
         "badge_name": "test_badge",
@@ -80,7 +80,7 @@ class TestPostBadges(unittest.TestCase):
         event = {
             "headers": {
                 # Actualizar con un token valido y no expirado (Acces token)
-                "Authorization": "Bearer eyJraWQiOiI1YW9nb3RzZk9PTFF1Mm1JNzJOVEV3VnRqZmJqUWFpUzE2d2pPT25kTkVzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3MTBiYjVlMC01MGQxLTcwZTQtNTY3OS1hMzlkMWIxYjUyZWIiLCJjb2duaXRvOmdyb3VwcyI6WyJ1c2VyIl0sImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy1lYXN0LTIuYW1hem9uYXdzLmNvbVwvdXMtZWFzdC0yX05EWFpPRzdEUSIsImNsaWVudF9pZCI6IjVzNWMxb2Zwa3EzMGdrYnQ2MXExaGRpY2ZkIiwib3JpZ2luX2p0aSI6ImMxYWYxMjAxLTA0MWQtNDg0YS1iNzg5LTlhMTY0NGQ0MTdmNyIsImV2ZW50X2lkIjoiOTU5OTlmMjEtNTBmMi00YmEwLTliMGItYzAwNjcwNTNiYzZkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTcyNDA4ODQxMiwiZXhwIjoxNzI0MDkyMDEyLCJpYXQiOjE3MjQwODg0MTIsImp0aSI6ImVkNGUwNGY3LWVkYmMtNGI0NS04YzEzLTg2ZmFkODY2NTQ0MCIsInVzZXJuYW1lIjoic2VyaW8ifQ.PDvg5Zxg0N97KUE6KjcPCDxLOm8-y3AaveEa0T_wBB_SWBrxpB66w4rxRgV1vz6LlBfbF6iokdgiOAYMmLtFktVvWTqVAI32-2l1nqhk8BlMP0UFgPuQyAGxBZwx_W8ajffU74qm0nKdNdROzNdlm4lyznA8cBZvCfPJt7DjVQHZCzTViYz8Kq10FEbdKL9ewxDUpXgcMia2LKyI0nERJeFLrS-EK8JkPLZb-rVpDHWW938og6c6GMOb9aO3LAFOcMK9q301J9_qWTdgad4zULObTchtqsusqbxyxI5lPhpFeBp8Snunsjay7NcBn1f3SAayutNfPCyXYIJG50vaDw"
+                "Authorization": "Bearer "
             },
             "body": json.dumps({
                 "badge_name": "Example Badge"
@@ -105,7 +105,7 @@ class TestPostBadges(unittest.TestCase):
         event = {
             "headers": {
                 # Actualizar con un token valido y no expirado (Acces token)
-                "Authorization": "Bearer eyJraWQiOiI1YW9nb3RzZk9PTFF1Mm1JNzJOVEV3VnRqZmJqUWFpUzE2d2pPT25kTkVzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3MTBiYjVlMC01MGQxLTcwZTQtNTY3OS1hMzlkMWIxYjUyZWIiLCJjb2duaXRvOmdyb3VwcyI6WyJ1c2VyIl0sImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy1lYXN0LTIuYW1hem9uYXdzLmNvbVwvdXMtZWFzdC0yX05EWFpPRzdEUSIsImNsaWVudF9pZCI6IjVzNWMxb2Zwa3EzMGdrYnQ2MXExaGRpY2ZkIiwib3JpZ2luX2p0aSI6ImMxYWYxMjAxLTA0MWQtNDg0YS1iNzg5LTlhMTY0NGQ0MTdmNyIsImV2ZW50X2lkIjoiOTU5OTlmMjEtNTBmMi00YmEwLTliMGItYzAwNjcwNTNiYzZkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTcyNDA4ODQxMiwiZXhwIjoxNzI0MDkyMDEyLCJpYXQiOjE3MjQwODg0MTIsImp0aSI6ImVkNGUwNGY3LWVkYmMtNGI0NS04YzEzLTg2ZmFkODY2NTQ0MCIsInVzZXJuYW1lIjoic2VyaW8ifQ.PDvg5Zxg0N97KUE6KjcPCDxLOm8-y3AaveEa0T_wBB_SWBrxpB66w4rxRgV1vz6LlBfbF6iokdgiOAYMmLtFktVvWTqVAI32-2l1nqhk8BlMP0UFgPuQyAGxBZwx_W8ajffU74qm0nKdNdROzNdlm4lyznA8cBZvCfPJt7DjVQHZCzTViYz8Kq10FEbdKL9ewxDUpXgcMia2LKyI0nERJeFLrS-EK8JkPLZb-rVpDHWW938og6c6GMOb9aO3LAFOcMK9q301J9_qWTdgad4zULObTchtqsusqbxyxI5lPhpFeBp8Snunsjay7NcBn1f3SAayutNfPCyXYIJG50vaDw"
+                "Authorization": "Bearer "
             },
             "body": "invalid-json"
         }
