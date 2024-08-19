@@ -113,6 +113,11 @@ def lambda_handler(event, context):
                     result = [dict(zip(columns, row)) for row in result]
                 response = {
                     "statusCode": 200,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS,PUT,DELETE',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps(result, default=str)
                 }
             except Exception as e:
