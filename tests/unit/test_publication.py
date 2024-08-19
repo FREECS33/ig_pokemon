@@ -67,7 +67,8 @@ class TestPostPublication(unittest.TestCase):
         response = lambda_handler(event, None)
 
         self.assertEqual(response['statusCode'], 200)
-        self.assertIn("Pokemon created successfully", response["body"]["message"])
+        data = json.loads(response["body"])
+        self.assertEqual(data["message"], "Pokemon created successfully")
 
     @patch('post_publication.app.get_secret')
     def test_lambda_handler_missing_fields(self, mock_get_secret):
@@ -78,6 +79,9 @@ class TestPostPublication(unittest.TestCase):
         }
 
         event = {
+            "headers": {
+              "Authorization": "Bearer "
+            },
             "body": json.dumps({
                 "pokemon_name": "Pikachu"
             })
@@ -100,6 +104,9 @@ class TestPostPublication(unittest.TestCase):
         }
 
         event = {
+            "headers": {
+                "Authorization": "Bearer "
+            },
             "body": "invalid json"
         }
 
@@ -120,6 +127,9 @@ class TestPostPublication(unittest.TestCase):
         }
 
         event = {
+            "headers": {
+                "Authorization": "Bearer "
+            },
             "body": json.dumps({
                 "pokemon_name": "Pikachu",
                 "abilities": ["Static", "Lightning Rod"],
@@ -152,6 +162,9 @@ class TestPostPublication(unittest.TestCase):
         }
 
         event = {
+            "headers": {
+                "Authorization": "Bearer "
+            },
             "body": json.dumps({
                 "pokemon_name": "Pikachu",
                 "abilities": ["Static", "Lightning Rod"],
@@ -329,3 +342,97 @@ class TestPostPublication(unittest.TestCase):
         self.assertEqual(result["statusCode"], 500)
         body = json.loads(result["body"])
         self.assertEqual(body, "Generic database error")
+
+    @patch('post_publication.app.get_secret')
+    @patch('post_publication.app.pymysql.connect')
+    def test_lambda_handler_missing_auth_header(self, mock_connect, mock_get_secret):
+        event_missing = {
+            "headers": {}
+        }
+        context = {}
+
+        response = lambda_handler(event_missing, context)
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertIn("Authorization header is missing", response["body"])
+
+    @patch('post_publication.app.get_secret')
+    @patch('post_publication.app.pymysql.connect')
+    def test_lambda_handler_invalid_auth_header(self, mock_connect, mock_get_secret):
+        event_invalid = {
+            "headers": {
+                "Authorization": "Invalid token"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid, context)
+
+        self.assertEqual(response['statusCode'], 400)
+        self.assertIn('Authorization header must start with \'Bearer \'', response['body'])
+
+    @patch('post_publication.app.get_secret')
+    @patch('post_publication.app.pymysql.connect')
+    def test_lambda_handler_invalid_token(self, mock_connect, mock_get_secret):
+        event_invalid = {
+            "headers": {
+                "Authorization": "Bearer invalid_token"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid, context)
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertIn("Invalid token", response["body"])
+
+    @patch('post_publication.app.get_secret')
+    @patch('post_publication.app.pymysql.connect')
+    def test_lambda_handler_invalid_audience_token(self, mock_connect, mock_get_secret):
+        event_invalid_audience = {
+            "headers": {
+                # Actualizar con un token valido, que no haya expirado (Id token)
+                "Authorization": "Bearer "
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_invalid_audience, context)
+
+        self.assertEqual(response["statusCode"], 401)
+        self.assertIn("Invalid token: Invalid audience", response["body"])
+
+    @patch('post_publication.app.get_secret')
+    @patch('post_publication.app.pymysql.connect')
+    def test_lambda_handler_expired_token(self, mock_connect, mock_get_secret):
+        event_expired_token = {
+            "headers": {
+                # Actualizar con un token valido y que haya expirado (Access token)
+                "Authorization": "Bearer "
+            },
+            "queryStringParameters": {
+                "id_pokemon": "1"
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_expired_token, context)
+
+        self.assertEqual(response["statusCode"], 401)
+        self.assertIn("Token has expired", response["body"])
+
+    @patch('post_publication.app.get_secret')
+    @patch('post_publication.app.pymysql.connect')
+    def test_lambda_handler_invalid_permits(self, mock_connect, mock_get_secret):
+        event_token = {
+            "headers": {
+                # Actualizar con un token que no contenga los roles permitidos (Access Token)
+                "Authorization": "Bearer "
+            }
+        }
+        context = {}
+
+        response = lambda_handler(event_token, context)
+
+        self.assertEqual(response["statusCode"], 403)
+        self.assertIn("Access Denied: Insufficient permits", response["body"])

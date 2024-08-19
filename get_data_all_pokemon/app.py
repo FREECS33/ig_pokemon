@@ -76,7 +76,11 @@ def lambda_handler(event, context):
             if "headers" not in event or "Authorization" not in event["headers"]:
                 return {
                     "statusCode": 400,
-
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps("Authorization header is missing")
                 }
             auth_header = event["headers"]["Authorization"]
@@ -84,6 +88,11 @@ def lambda_handler(event, context):
             if not auth_header.startswith("Bearer "):
                 return {
                     "statusCode": 400,
+                    'headers': {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+                    },
                     "body": json.dumps("Authorization header must start with 'Bearer '")
                 }
 
@@ -97,7 +106,7 @@ def lambda_handler(event, context):
 
             user_groups = decoded_token.get('cognito:groups', [])
 
-            if "user" not in user_groups and "mod" not in user_groups:
+            if "user" not in user_groups:
                 return {
                     "statusCode": 403,
                     'headers': {

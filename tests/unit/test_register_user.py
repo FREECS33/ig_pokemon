@@ -7,7 +7,7 @@ from register_user.app import get_secret, lambda_handler
 
 class TestLambdaHandler(unittest.TestCase):
 
-    @patch('boto3.session.Session.client')
+    @patch('register_user.app.boto3.session.Session.client')
     def test_get_secret_success(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.return_value = {
@@ -25,7 +25,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertEqual(secret['CLIENT_SECRET'], 'mock_client_secret')
 
     @patch('register_user.app.get_secret')
-    @patch('boto3.client')
+    @patch('register_user.app.boto3.client')
     @patch('register_user.app.pymysql.connect')
     def test_lambda_handler_success(self, mock_connect, mock_boto_client, mock_get_secret):
         def mock_get_secret_effect(secret_name):
@@ -65,7 +65,6 @@ class TestLambdaHandler(unittest.TestCase):
         context = {}
 
         response = lambda_handler(event, context)
-        print(response)
 
         self.assertEqual(response['statusCode'], 200)
         data = json.loads(response['body'])
@@ -73,7 +72,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertIn('user_sub', data)
 
     @patch('register_user.app.get_secret')
-    @patch('boto3.client')
+    @patch('register_user.app.boto3.client')
     def test_lambda_handler_missing_parameter(self, mock_boto_client, mock_get_secret):
         mock_get_secret.return_value = {
             'USER_POOL_ID': 'mock_polId',
@@ -98,7 +97,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertIn('Missing parameter', data['error'])
 
     @patch('register_user.app.get_secret')
-    @patch('boto3.client')
+    @patch('register_user.app.boto3.client')
     def test_lambda_handler_client_error(self, mock_boto_client, mock_get_secret):
         mock_get_secret.return_value = {
             'USER_POOL_ID': 'mock_polId',
@@ -172,7 +171,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertIn('error', data)
         self.assertIn('Incomplete AWS credentials', data['error'])
 
-    @patch('boto3.session.Session.client')
+    @patch('register_user.app.boto3.session.Session.client')
     def test_get_secret_client_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -186,7 +185,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 404)
         self.assertIn('Secret cognitoKeys not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('register_user.app.boto3.session.Session.client')
     def test_get_secret_no_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = NoCredentialsError()
@@ -197,7 +196,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('AWS credentials not found', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('register_user.app.boto3.session.Session.client')
     def test_get_secret_partial_credentials_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = PartialCredentialsError(
@@ -210,7 +209,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 401)
         self.assertIn('Incomplete AWS credentials', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('register_user.app.boto3.session.Session.client')
     def test_get_secret_unknown_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = Exception("Unknown error")
@@ -221,7 +220,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 500)
         self.assertIn('Unknown error', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('register_user.app.boto3.session.Session.client')
     def test_get_secret_invalid_request_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -235,7 +234,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid request for secret cognitoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('register_user.app.boto3.session.Session.client')
     def test_get_secret_invalid_parameter_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -249,7 +248,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertEqual(context.exception.args[0]['statusCode'], 400)
         self.assertIn('Invalid parameter for secret cognitoKeys', context.exception.args[0]['body'])
 
-    @patch('boto3.session.Session.client')
+    @patch('register_user.app.boto3.session.Session.client')
     def test_get_secret_access_denied_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
@@ -264,7 +263,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertIn('Access denied for secret cognitoKeys', context.exception.args[0]['body'])
 
     @patch('register_user.app.get_secret')
-    @patch('boto3.client')
+    @patch('register_user.app.boto3.client')
     def test_lambda_handler_general_exception(self, mock_get_secret, mock_boto_client):
         mock_get_secret.side_effect = Exception("General error")
 
@@ -285,7 +284,7 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertIn('error', data)
         self.assertIn('Internal server error: General error', data['error'])
 
-    @patch('boto3.session.Session.client')
+    @patch('register_user.app.boto3.session.Session.client')
     def test_get_secret_general_client_error(self, mock_client):
         mock_client_instance = mock_client.return_value
         mock_client_instance.get_secret_value.side_effect = ClientError(
