@@ -42,6 +42,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             'body': json.dumps({
@@ -70,6 +71,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             'body': json.dumps({
@@ -97,6 +99,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             'body': json.dumps({
@@ -330,6 +333,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             'body': json.dumps({
@@ -363,6 +367,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             'body': json.dumps({
@@ -396,6 +401,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             'body': json.dumps({
@@ -429,6 +435,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             'body': json.dumps({
@@ -462,6 +469,7 @@ class TestLambdaHandler(unittest.TestCase):
 
         event = {
             "headers": {
+                # Actualizar con un token valido y no expirado (Acces token)
                 "Authorization": "Bearer "
             },
             'body': json.dumps({
